@@ -1,0 +1,12 @@
+---
+title: "Informe"
+author: "Deyner López"
+date: "2022-11-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
