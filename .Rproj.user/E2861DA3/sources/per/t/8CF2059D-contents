@@ -1,12 +1,49 @@
 ---
-title: "Informe"
-author: "Deyner López"
-date: "2022-11-13"
-output: html_document
+title: "Trabajo 3"
+author: "Deyner López Pineda"
+date: "13/11/2022"
+output: 
+  html_document:
+    theme: spacelab
+    code_folding: hide
+    code_download: yes
+    df_print: paged
+    toc: true
+    toc_float: 
+      colapse: false
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## 1. Introducción
+
+
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Librerias
+
+library(stringr); library(dplyr); library(rgdal); library(plyr); library(tidyverse); library(kableExtra); library(lubridate); library(ggplot2); library(plotly); library(ggpubr);library(dummies);
+library(readxl);library(sf);library(GGally);library(car);library(MLmetrics);library(wordcloud);library(gplots);library(R.utils);library(tm);library(DescTools);library(raster);library(mclust);library(geosphere);library(NbClust);library(factoextra);library(vegan);library(qpcR);library(leaflet)
+```
+
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+#Lectura de la base de datos
+bd <- read.csv("incidentes_viales.csv", dec=",", header=T,sep=";", encoding = "UTF-8")
+```
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Se cambia el formata de la fecha del accidente
+bd$FECHA_ACCIDENTE <- as.Date(bd$FECHA_ACCIDENTE, format="%d/%m/%Y")
+```
+
+## 1. Datos
+
+```{r message=FALSE, warning=FALSE,echo=TRUE}
+#Mostramos las primeras 5 observaciones de la base de datos
+head(bd,n=5)
+```
 

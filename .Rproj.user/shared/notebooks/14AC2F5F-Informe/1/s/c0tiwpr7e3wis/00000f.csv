@@ -1,0 +1,4 @@
+"0","# Librerias"
+"0",""
+"0","library(stringr); library(dplyr); library(rgdal); library(plyr); library(tidyverse); library(kableExtra); library(lubridate); library(ggplot2); library(plotly); library(ggpubr);library(dummies);"
+"0","library(readxl);library(sf);library(GGally);library(car);library(MLmetrics);library(wordcloud);library(gplots);library(R.utils);library(tm);library(DescTools);library(raster);library(mclust);library(geosphere);library(NbClust);library(factoextra);library(vegan);library(qpcR);library(leaflet)"

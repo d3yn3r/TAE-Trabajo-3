@@ -1,0 +1,1 @@
+"0","bd <- read.csv(""incidentes_viales.csv"", dec="","", header=T,sep="";"", encoding = ""UTF-8"")"

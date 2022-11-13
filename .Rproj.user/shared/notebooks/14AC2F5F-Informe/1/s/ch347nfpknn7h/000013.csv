@@ -1,0 +1,2 @@
+"0","#Se cambia el formata de la fecha del accidente"
+"0","bd$FECHA_ACCIDENTE <- as.Date(bd$FECHA_ACCIDENTE, format=""%d/%m/%Y"")"
