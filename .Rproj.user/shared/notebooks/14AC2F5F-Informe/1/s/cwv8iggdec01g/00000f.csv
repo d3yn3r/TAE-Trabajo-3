@@ -1,0 +1,1 @@
+"0","bd$HORA_ACCIDENTE <- substr(bd$FECHA_ACCIDENTES,start = 12 ,stop = 19)"
