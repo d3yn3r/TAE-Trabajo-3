@@ -1,2 +1,0 @@
-"0","#Mostramos las primeras 5 observaciones de la base de datos"
-"0","head(bd,n=5)"

@@ -1,0 +1,4 @@
+"0","#Eliminacion de variables no necesarias"
+"0",""
+"0","base2 <- dplyr::select(bd_unif,-X,-Y,-BARRIO,-COMUNA,-DIRECCION.ENCASILLADA,-CBML,-TEMP_CBML,-TEMP2_CBML,-FECHA_ACCIDENTES,-EXPEDIENTE,-DISEÑO)"
+"0",""

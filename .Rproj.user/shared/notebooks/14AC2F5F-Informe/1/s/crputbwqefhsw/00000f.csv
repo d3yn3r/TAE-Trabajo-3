@@ -1,0 +1,2 @@
+"0","#EJECUTAR SOLO PARA CREAR EL CSV NUEVO"
+"0","write.csv(base2,""./datos/base_depurada.csv"",fileEncoding = ""UTF-8"")"

@@ -1,5 +1,0 @@
-"0","#eliminamos las variables X y Y, dado que para usar la localizacion de accidente"
-"0","#usaremos la variable LOCATION."
-"0",""
-"0","bd$X<- NULL"
-"0","bd$Y<- NULL"

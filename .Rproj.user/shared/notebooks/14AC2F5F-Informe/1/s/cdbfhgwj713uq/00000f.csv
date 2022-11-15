@@ -1,0 +1,8 @@
+"0","# reemplazamos los datos vacios de la variable CLASE_ACCIDENTE"
+"0",""
+"0","#Cambiar los datos vacios por ""otro""."
+"0","bd$CLASE_ACCIDENTE <- ifelse(bd$CLASE_ACCIDENTE == """",""Otro"",bd$CLASE_ACCIDENTE) "
+"0",""
+"0","#Correcion de tildes"
+"0","bd$CLASE_ACCIDENTE <- iconv(bd$CLASE_ACCIDENTE, from = ""UTF-8"", to = ""ASCII//TRANSLIT"") "
+"0",""

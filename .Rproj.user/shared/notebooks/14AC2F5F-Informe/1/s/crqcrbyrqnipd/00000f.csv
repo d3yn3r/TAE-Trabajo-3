@@ -1,0 +1,2 @@
+"0","#Creamos una nueva variables que contiene el dia de la semana en que ocurrio el accidente"
+"0","bd$DIA_SEMANA <- format(bd$FECHA_ACCIDENTE, format=""%A"")"

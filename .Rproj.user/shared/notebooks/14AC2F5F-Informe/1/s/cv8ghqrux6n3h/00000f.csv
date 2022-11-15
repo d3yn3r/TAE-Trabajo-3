@@ -1,0 +1,2 @@
+"0","#renombraremos las variables"
+"0","base2 <- plyr::rename(base2,  c(""FECHA_ACCIDENTE""=""FECHA"",""NOMBRE_BAR""=""BARRIO"",""NOMBRE_COM""=""COMUNA"",""GRAVEDAD_ACCIDENTE""=""GRAVEDAD"",""CLASE_ACCIDENTE""=""CLASE""))"

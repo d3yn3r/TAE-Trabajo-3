@@ -1,0 +1,8 @@
+"0","# Cambiar datos vacios de la variable DISENO"
+"0",""
+"0","#Cambiar datos vacios por ""no especificado"""
+"0","bd$DISEÑO <- ifelse(bd$DISEÑO == """",""otro"",bd$DISEÑO)"
+"0",""
+"0","#Correccion de tildes"
+"0","bd$DISENO <- iconv(bd$DISEÑO, from = ""UTF-8"",to=""ASCII//TRANSLIT"") "
+"0",""

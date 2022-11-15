@@ -1,0 +1,2 @@
+"0","#Creamos una nueva variables la cual contiene la hora del accidente"
+"0","bd$HORA_ACCIDENTE <- substr(bd$FECHA_ACCIDENTES,start = 12 ,stop = 19)"

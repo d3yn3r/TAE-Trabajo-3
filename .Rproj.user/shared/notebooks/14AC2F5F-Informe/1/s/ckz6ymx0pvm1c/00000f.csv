@@ -1,0 +1,2 @@
+"0","#Correccion de tildes"
+"0","base2$NOMBRE_BAR <- iconv(base2$NOMBRE_BAR, from = ""UTF-8"", to = ""ASCII//TRANSLIT"")"

@@ -3,17 +3,19 @@ title: "Trabajo 3"
 author: "Deyner López Pineda, Daniel torres aguirre, Andres camilo garcia, wilmar, amilder"
 date: "13/11/2022"
 output: 
-  prettydoc::html_pretty:
-    theme: hpstr
+  html_document:
+    theme: spacelab
+    code_folding: hide
+    code_download: yes
+    df_print: paged
+    toc: true
+    toc_float: 
+      colapse: false
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## 1. Introducción
-
-
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 # Librerias
@@ -22,42 +24,171 @@ library(stringr); library(dplyr); library(rgdal); library(plyr); library(tidyver
 library(readxl);library(sf);library(GGally);library(car);library(MLmetrics);library(wordcloud);library(gplots);library(R.utils);library(tm);library(DescTools);library(raster);library(mclust);library(geosphere);library(NbClust);library(factoextra);library(vegan);library(qpcR);library(leaflet)
 ```
 
+## 1. Introducción
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 #Lectura de la base de datos
-bd <- read.csv("incidentes_viales.csv", dec=",", header=T,sep=";", encoding = "UTF-8")
+bd <- read.csv("./datos/incidentes_viales.csv", dec=",", header=T,sep=";", encoding = "UTF-8")
 ```
 
-```{r}
-#eliminamos las variables X y Y, dado que para usar la localizacion de accidente
-#usaremos la variable LOCATION.
+## 1. Datos
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
 
-bd$X<- NULL
-bd$Y<- NULL
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+#Mostramos las primeras 5 observaciones de la base de datos
+head(bd,n=5)
 ```
-
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Se cambia el formata de la fecha del accidente
 bd$FECHA_ACCIDENTE <- as.Date(bd$FECHA_ACCIDENTE, format="%d/%m/%Y")
 ```
 
-## 1. Datos
+### 1.1 Revisión de valores vacios
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
 
-```{r message=FALSE, warning=FALSE,echo=TRUE}
-#Mostramos las primeras 5 observaciones de la base de datos
-head(bd,n=5)
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Revisamos que variables contienen valores vacios
+colSums(is.na(bd)|bd=="")
 ```
 
-```{r}
-#Revisamos que variables contienen valor vacios
-colSums(is.na(bd)|bd=="") #cuenta los vacios
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=FALSE}
+# reemplazamos los datos vacios de la variable CLASE_ACCIDENTE
+
+#Cambiar los datos vacios por "otro".
+bd$CLASE_ACCIDENTE <- ifelse(bd$CLASE_ACCIDENTE == "","Otro",bd$CLASE_ACCIDENTE) 
+
+#Correcion de tildes
+bd$CLASE_ACCIDENTE <- iconv(bd$CLASE_ACCIDENTE, from = "UTF-8", to = "ASCII//TRANSLIT") 
+
 ```
-```{r}
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Cambiar datos vacios de la variable DISENO
+
+#Cambiar datos vacios por "no especificado"
+bd$DISEÑO <- ifelse(bd$DISEÑO == "","otro",bd$DISEÑO)
+
+#Correccion de tildes
+bd$DISENO <- iconv(bd$DISEÑO, from = "UTF-8",to="ASCII//TRANSLIT") 
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Creamos una nueva variables que contiene el dia de la semana en que ocurrio el accidente
 bd$DIA_SEMANA <- format(bd$FECHA_ACCIDENTE, format="%A")
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Creamos una nueva variables la cual contiene la hora del accidente
 bd$HORA_ACCIDENTE <- substr(bd$FECHA_ACCIDENTES,start = 12 ,stop = 19)
 ```
+
+### 1.2 Integración de datos Geo-Medellín y depuración.
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
+
+#### 1.2.1 Integración de datos Geo-Medellín
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+catastro <- rgdal::readOGR(dsn = "./datos/Catastro_gdb.shp", layer = "Catastro_gdb")
+
+
+#quitamos los 962 datos de CBML que están errados ---> quedan 269803
+bd <- bd[-which(bd$CBML %in% c("AUC1","AUC2","Inst_14","Inst_16","Inst_18","Inst_19","Sin Inf","SN01")),]
+
+#Creamos un nueva columna llamada CB en bd que solo deja los primeros 4 digitos de CBML para buscarlos en la bd de catastro y traer la comuna y el barrio de los que estén vacios.
+
+bd <- mutate(bd, TEMP_CBML = str_sub(CBML,1,4))
+
+#agregando un cero adelante a los TEMP_CBML y creando una nueva columna --> TEMP2_CBML
+bd <- mutate(bd, TEMP2_CBML=ifelse(nchar(TEMP_CBML)==3,paste0("0", TEMP_CBML),TEMP_CBML),TEMP_CBML)
+
+colnames(bd)#nombres de columnas
+
+#base unificada
+
+bd <- inner_join(bd, dplyr::select(catastro@data,CODIGO,NOMBRE_COM,NOMBRE_BAR),
+                  by = c("TEMP2_CBML" = "CODIGO")) #quedan 254009 datos
+
+
+#Quitar repetidos por el inner_join
+
+bd <- bd %>%     #convirtiendo en factor para ver mejor los únicos
+  mutate(NRO_RADICADO = as.factor(NRO_RADICADO))
+radicados_duplicados <- bd$NRO_RADICADO[duplicated(bd$NRO_RADICADO)]
+
+radicados_duplicados  #verificar duplicados
+registros_rad_dup <- bd %>% 
+  
+  filter(NRO_RADICADO %in% radicados_duplicados) %>%  #
+  arrange(NRO_RADICADO)
+#registros_rad_dup
+
+
+bd_unif <- bd %>% 
+  filter(!(NRO_RADICADO %in% radicados_duplicados))
+#246417 observaciones únicas
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Eliminacion de variables no necesarias
+
+base2 <- dplyr::select(bd_unif,-X,-Y,-BARRIO,-COMUNA,-DIRECCION.ENCASILLADA,-CBML,-TEMP_CBML,-TEMP2_CBML,-FECHA_ACCIDENTES,-EXPEDIENTE,-DISEÑO)
+
+```
+
+```{r}
+#Correccion de tildes
+base2$NOMBRE_BAR <- iconv(base2$NOMBRE_BAR, from = "UTF-8", to = "ASCII//TRANSLIT")
+```
+
+```{r}
+#separar en dos nuevas variables la longitud y latitud, contenidos en la variables LOCATION
+base2 <- separate(base2,LOCATION,c("LONGITUD","LATITUD"),sep=",",convert=TRUE)
+
+#quitamos el "[" del dato
+base2$LONGITUD <- substring(base2$LONGITUD, first = 2)
+
+#Eliminar el espacio entre los numeros
+base2$LATITUD <- gsub(" ","", base2$LATITUD)
+
+#eliminar el ultimo elemento "]"
+base2$LATITUD <- gsub("]","", base2$LATITUD) 
+```
+
+```{r}
+#renombraremos las variables
+base2 <- plyr::rename(base2,  c("FECHA_ACCIDENTE"="FECHA","NOMBRE_BAR"="BARRIO","NOMBRE_COM"="COMUNA","GRAVEDAD_ACCIDENTE"="GRAVEDAD","CLASE_ACCIDENTE"="CLASE"))
+```
+
+
+```{r}
+#EJECUTAR SOLO PARA CREAR EL CSV NUEVO
+#write.csv(base2,"./datos/base_depurada.csv",fileEncoding = "UTF-8")
+```
+
+## Referencias
+<a href="https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about"> https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about </a>
+</br>
+
+
+
+
+
+
+
+
 

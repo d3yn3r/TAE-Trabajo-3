@@ -1,0 +1,32 @@
+"0","#agregando semana"
+"0","base2 <- mutate(base2, SEMANA=as.factor(week(base2$FECHA)))"
+"0","base2$SEMANA <- as.factor(base2$SEMANA)"
+"0",""
+"0","#Tipo de festividad"
+"0",""
+"0","fechas_especiales2 <- read.csv(""./datos/dias_festivos_21.csv"","
+"0","                       sep = "","", "
+"0","                       header = T)"
+"0",""
+"0","#convertir a date"
+"0","fechas_especiales2$FECHA <- as.Date(fechas_especiales2$FECHA, format=""%d/%m/%Y"")#año,mes,dia"
+"0","class(base2$FECHA)"
+"1","[1]"
+"1"," ""Date"""
+"1","
+"
+"0","class(fechas_especiales2$FECHA)"
+"1","[1]"
+"1"," ""Date"""
+"1","
+"
+"0","#pegando el tipo de festividad, se crea una columna que se llama tipo_festividad"
+"0","base_prueba <- left_join(base2, dplyr::select(fechas_especiales2,FECHA,TIPO_FESTIVIDAD), "
+"0","                  by = c(""FECHA"" = ""FECHA""))"
+"1","[1m[33mError[39m in `dplyr::select()`:[22m
+[33m![39m Can't subset columns that don't exist.
+[31m✖[39m Column `TIPO_FESTIVIDAD` doesn't exist.
+Backtrace:
+[90m 1. [39m[1mdplyr[22m::left_join(...)
+[90m 8. [39m[1m[94mdplyr:::select.data.frame([39m[22mfechas_especiales2, FECHA, TIPO_FESTIVIDAD[1m[94m)[39m[22m
+"
