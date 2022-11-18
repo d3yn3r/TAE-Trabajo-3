@@ -2762,17 +2762,23 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "\e259";
+.tabset-dropdown > .nav-tabs > li.active:before {
+content: "";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "\e258";
-font-family: 'Glyphicons Halflings';
+content: "";
 border: none;
+}
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "";
+font-family: 'Glyphicons Halflings';
+display: inline-block;
+padding: 10px;
+border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -2914,124 +2920,116 @@ blanditiis eligendi consequatur ducimus id. Error, facilis?</p>
 <div id="datos" class="section level2">
 <h2>1. Datos</h2>
 <div style="text-align: justify">
-<p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore
-itaque iure ipsum sunt omnis quis vel doloremque provident, nam
-perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat
-saepe quo veniam corporis reprehenderit dolores eveniet voluptate
-aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod
-quae rerum ad assumenda enim possimus id tempore, perferendis incidunt
-explicabo facilis laudantium nulla temporibus deserunt est ratione
-corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam
-ratione ut consequuntur quas a, neque sint facere fugit fugiat
-exercitationem recusandae magni quam cumque repellendus illo facilis
-blanditiis eligendi consequatur ducimus id. Error, facilis?</p>
+<p>Los datos fueron obtenidos de la plataforma <a href="http://medata.gov.co/dataset/incidentes-viales">medata</a>, la
+base de datos cuenta con un total de 270.765 observaciones con 18
+variables, datos obtenidos en el periodo comprendido entre el año 2014 y
+2020, en la siguiente sección realizamos la limpieza de los datos y
+organización de los mismos para realizar un análisis descriptivo de
+estos y posteriormente realizar los agrupamiento solicitados y la
+predicción de accidentalidad.</p>
 </div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["AÑO"],"name":[1],"type":["chr"],"align":["left"]},{"label":["CBML"],"name":[2],"type":["chr"],"align":["left"]},{"label":["CLASE_ACCIDENTE"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DIRECCION"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DIRECCION.ENCASILLADA"],"name":[5],"type":["chr"],"align":["left"]},{"label":["DISEÑO"],"name":[6],"type":["chr"],"align":["left"]},{"label":["EXPEDIENTE"],"name":[7],"type":["chr"],"align":["left"]},{"label":["FECHA_ACCIDENTE"],"name":[8],"type":["chr"],"align":["left"]},{"label":["FECHA_ACCIDENTES"],"name":[9],"type":["chr"],"align":["left"]},{"label":["GRAVEDAD_ACCIDENTE"],"name":[10],"type":["chr"],"align":["left"]},{"label":["MES"],"name":[11],"type":["int"],"align":["right"]},{"label":["NRO_RADICADO"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["NUMCOMUNA"],"name":[13],"type":["chr"],"align":["left"]},{"label":["BARRIO"],"name":[14],"type":["chr"],"align":["left"]},{"label":["COMUNA"],"name":[15],"type":["chr"],"align":["left"]},{"label":["LOCATION"],"name":[16],"type":["chr"],"align":["left"]},{"label":["X"],"name":[17],"type":["chr"],"align":["left"]},{"label":["Y"],"name":[18],"type":["chr"],"align":["left"]}],"data":[{"1":"2015","2":"1013","3":"Caida Ocupante","4":"CR 46 CL 43","5":"CR  046   043  000 00000","6":"Tramo de via","7":"A000259731","8":"21/10/2015 05:58:00","9":"2015-10-21T10:58:00.000Z","10":"Con heridos","11":"10","12":"1508668","13":"10","14":"Barrio Colón","15":"La Candelaria","16":"[-75.5688011014, 6.24312304123]","17":"834949.69","18":"1182357.34","_rn_":"1"},{"1":"2015","2":"1020","3":"Choque","4":"CR 43 A CL 29","5":"CR  043 A   029  000 00000","6":"Tramo de via","7":"A000261725","8":"05/11/2015 03:00:00","9":"2015-11-05T08:00:00.000Z","10":"Solo daños","11":"11","12":"1510621","13":"10","14":"San Diego","15":"La Candelaria","16":"[-75.5693883283, 6.22870030622]","17":"834880.17","18":"1180762.02","_rn_":"2"},{"1":"2015","2":"0205","3":"Otro","4":"CR 46 CL 37","5":"CR  046   037  000 00000","6":"Tramo de via","7":"A000259739","8":"21/10/2015 07:40:00","9":"2015-10-21T12:40:00.000Z","10":"Con heridos","11":"10","12":"1508691","13":"02","14":"La Francia","15":"Santa Cruz","16":"[-75.5503911403, 6.29869502502]","17":"837004.94","18":"1188499.17","_rn_":"3"},{"1":"2015","2":"0101","3":"Atropello","4":"CR 34 CL 112","5":"CR  034   112  000 00000","6":"Tramo de via","7":"A000259752","8":"21/10/2015 12:00:00","9":"2015-10-21T17:00:00.000Z","10":"Con heridos","11":"10","12":"1508694","13":"01","14":"Santo Domingo Savio No. 1","15":"Popular","16":"[-75.5442195069, 6.30019383306]","17":"837688.53","18":"1188663.05","_rn_":"4"},{"1":"2015","2":"1504","3":"Choque","4":"CR 50 CL 14","5":"CR  050   014  000 00000","6":"Tramo de via","7":"A000259949","8":"03/11/2015 06:16:00","9":"2015-11-03T11:16:00.000Z","10":"Solo daños","11":"11","12":"1510634","13":"15","14":"Santa Fé","15":"Guayabal","16":"[-75.578180998, 6.21699243701]","17":"833903.11","18":"1179469.6","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["ANO"],"name":[1],"type":["chr"],"align":["left"]},{"label":["CBML"],"name":[2],"type":["chr"],"align":["left"]},{"label":["CLASE_ACCIDENTE"],"name":[3],"type":["chr"],"align":["left"]},{"label":["DIRECCION"],"name":[4],"type":["chr"],"align":["left"]},{"label":["DIRECCION.ENCASILLADA"],"name":[5],"type":["chr"],"align":["left"]},{"label":["DISENO"],"name":[6],"type":["chr"],"align":["left"]},{"label":["EXPEDIENTE"],"name":[7],"type":["chr"],"align":["left"]},{"label":["FECHA_ACCIDENTE"],"name":[8],"type":["chr"],"align":["left"]},{"label":["FECHA_ACCIDENTES"],"name":[9],"type":["chr"],"align":["left"]},{"label":["GRAVEDAD_ACCIDENTE"],"name":[10],"type":["chr"],"align":["left"]},{"label":["MES"],"name":[11],"type":["int"],"align":["right"]},{"label":["NRO_RADICADO"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["NUMCOMUNA"],"name":[13],"type":["chr"],"align":["left"]},{"label":["BARRIO"],"name":[14],"type":["chr"],"align":["left"]},{"label":["COMUNA"],"name":[15],"type":["chr"],"align":["left"]},{"label":["LOCATION"],"name":[16],"type":["chr"],"align":["left"]},{"label":["X"],"name":[17],"type":["chr"],"align":["left"]},{"label":["Y"],"name":[18],"type":["chr"],"align":["left"]}],"data":[{"1":"2015","2":"1013","3":"Caida Ocupante","4":"CR 46 CL 43","5":"CR  046   043  000 00000","6":"Tramo de via","7":"A000259731","8":"21/10/2015 5:58","9":"2015-10-21T10:58:00.000Z","10":"Con heridos","11":"10","12":"1508668","13":"10","14":"Barrio Colón","15":"La Candelaria","16":"[-75.5688011014, 6.24312304123]","17":"834949.69","18":"1182357.34","_rn_":"1"},{"1":"2015","2":"1020","3":"Choque","4":"CR 43 A CL 29","5":"CR  043 A   029  000 00000","6":"Tramo de via","7":"A000261725","8":"5/11/2015 3:00","9":"2015-11-05T08:00:00.000Z","10":"Solo daños","11":"11","12":"1510621","13":"10","14":"San Diego","15":"La Candelaria","16":"[-75.5693883283, 6.22870030622]","17":"834880.17","18":"1180762.02","_rn_":"2"},{"1":"2015","2":"205","3":"Otro","4":"CR 46 CL 37","5":"CR  046   037  000 00000","6":"Tramo de via","7":"A000259739","8":"21/10/2015 7:40","9":"2015-10-21T12:40:00.000Z","10":"Con heridos","11":"10","12":"1508691","13":"2","14":"La Francia","15":"Santa Cruz","16":"[-75.5503911403, 6.29869502502]","17":"837004.94","18":"1188499.17","_rn_":"3"},{"1":"2015","2":"101","3":"Atropello","4":"CR 34 CL 112","5":"CR  034   112  000 00000","6":"Tramo de via","7":"A000259752","8":"21/10/2015 12:00","9":"2015-10-21T17:00:00.000Z","10":"Con heridos","11":"10","12":"1508694","13":"1","14":"Santo Domingo Savio No. 1","15":"Popular","16":"[-75.5442195069, 6.30019383306]","17":"837688.53","18":"1188663.05","_rn_":"4"},{"1":"2015","2":"1504","3":"Choque","4":"CR 50 CL 14","5":"CR  050   014  000 00000","6":"Tramo de via","7":"A000259949","8":"3/11/2015 6:16","9":"2015-11-03T11:16:00.000Z","10":"Solo daños","11":"11","12":"1510634","13":"15","14":"Santa Fé","15":"Guayabal","16":"[-75.578180998, 6.21699243701]","17":"833903.11","18":"1179469.6","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<div id="revisión-de-valores-vacios" class="section level3">
-<h3>1.1 Revisión de valores vacios</h3>
 <div style="text-align: justify">
-<p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore
-itaque iure ipsum sunt omnis quis vel doloremque provident, nam
-perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat
-saepe quo veniam corporis reprehenderit dolores eveniet voluptate
-aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod
-quae rerum ad assumenda enim possimus id tempore, perferendis incidunt
-explicabo facilis laudantium nulla temporibus deserunt est ratione
-corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam
-ratione ut consequuntur quas a, neque sint facere fugit fugiat
-exercitationem recusandae magni quam cumque repellendus illo facilis
-blanditiis eligendi consequatur ducimus id. Error, facilis?</p>
-</div>
-<pre><code>##                   AÑO                  CBML       CLASE_ACCIDENTE 
-##                     0                 18156                     6 
-##             DIRECCION DIRECCION.ENCASILLADA                DISEÑO 
-##                     0                   391                  1148 
-##            EXPEDIENTE       FECHA_ACCIDENTE      FECHA_ACCIDENTES 
-##                   110                    NA                     0 
-##    GRAVEDAD_ACCIDENTE                   MES          NRO_RADICADO 
-##                     0                     0                     5 
-##             NUMCOMUNA                BARRIO                COMUNA 
-##                     0                 19006                 12798 
-##              LOCATION                     X                     Y 
-##                     0                     0                     0</code></pre>
+<p>A continuación, se hace la revisión y descripción de cada variable
+con el fin de encontrar datos inconsistentes, esto se realizo revisando
+el csv en excel para datos inconsistentes y en R para los datos
+faltantes.</p>
+<p><strong>AÑO:</strong> año de ocurrencia del incidente. (2014 hasta
+2016)</p>
+<p><strong>CBML:</strong> es el código catastral que corresponde al
+código comuna, barrio, manzana, lote catastral de un predio. En este
+encontramos 18.156 vacíos y adicionalmente tiene 962 registros con
+caracteres extraños como: AUC1, AUC2, Inst_14, Inst_16, Inst_18,
+Inst_19, Sin Inf, SN01, para un total de 19.118 registros mal
+estructurados o vacíos.</p>
+<p><strong>CLASE_ACCIDENTE:</strong> clasificación del IPAT (Informe
+Policivo de Accidente de tránsito) sobre la clase de accidente de
+tránsito, hay 5 tipos de clasificación, choque, atropello, volcamiento,
+caída de ocupante, incendio y adicional se hay otra clasificación
+denominada como “otro”. En esta variable encontramos un total de 6 datos
+vacíos los cuales se cambiarán por “otro”.</p>
+<p><strong>DISEÑO:</strong> esta corresponde al sitio donde ocurrió el
+accidente (Ciclorruta, Glorieta, Intersección, Lote o Predio, Paso a
+Nivel, Paso Elevado, Paso Inferior, Pontón, Puente, Tramo de vía, Túnel,
+Vía peatonal). En esta encontramos 1.148 vacíos los cuales se
+reemplazarán por “otro”.</p>
+<p><strong>BARRIO:</strong> barrio de ocurrencia del incidente vial, en
+este encontramos 19.006 vacíos,Además se tienen 1.822 registros
+adicionales con carácteres como: números entre 0 y 9.086, AUC1, AUC2,
+Inst, Sin Inf, Sin nombre.</p>
+<p><strong>COMUNA:</strong> denominación con la cual se identifica cada
+Comuna o Corregimiento, en este encontramos 12.798 vacíos ademas se
+tienen 7.064 registros adicionales con carácteres como: No Georef, 0,
+In, AU, Sin Inf, SN.</p>
+<p><strong>NUMCOMUNA:</strong> número de la comuna en la que ocurrió
+incidente vial, se encontraron 20.116 registros adicionales con
+caracteres como: AU, In, Sin Inf, SN.</p>
+<p><strong>LOCATION:</strong> fuente de información con la cual se
+realizó la geo codificación, contiene la latitud y longitud,
+Posteriormente será separada en dos variables.</p>
+<p><strong>X:</strong>coordenada X en metros del accidente, en sistema
+de coordenadas MAGNA Medellín Local.</p>
+<p><strong>Y:</strong> coordenada Y en metros del accidente, en sistema
+de coordenadas MAGNA Medellín Local.</p>
+<p><strong>NRO_RADICADO:</strong> consecutivo que asigna UNE, según el
+orden de llegada de los expedientes para su diligenciamiento.</p>
+<p><strong>MES:</strong> mes de ocurrencia del incidente vial. Esta
+variable no se modifica.</p>
+<p><strong>GRAVEDAD_ACCIDENTE:</strong> clasificación del IPAT (Informe
+Policial de Accidentes de Tránsito) sobre la gravedad del accidente,
+corresponde al resultado más grave presentado en el accidente. Daños
+materiales “Sólo daños”, accidente con heridos “Herido”, accidente con
+muertos “Muerto”,en esta variable se cambia la codificación a UTF-8</p>
+<p><strong>FECHA_ACCIDENTES:</strong> fecha de los accidente (formato
+YYYY-MM-DD hh:mi:ss), proviene del IPAT (Informe Policial de accidentes
+de Tránsito)</p>
+<p><strong>FECHA_ACCIDENTE:</strong> fecha del accidente, proviene del
+IPAT (Informe Policial de accidente de Tránsito) esta variable
+posteriormente se elimina debido a que proporciona menos información que
+la variable FECHA_ACCIDENTES.</p>
+<p><strong>EXPEDIENTE:</strong> consecutivo que asigna UNE, según el
+orden de llegada de los expedientes para su diligenciamiento. Esta
+variable posteriormente se elimina.</p>
+<p><strong>DIRECCION ENCASILLADA:</strong> dirección encasillada que
+entrega el geo codificador. Esta variable se elimina.</p>
+<p><strong>DIRECCION:</strong> dirección donde ocurrió el incidente.
+Esta variable no se modifica.</p>
+<p><strong>NRO_RADICADO:</strong> consecutivo que asigna UNE, según el
+orden de llegada de los expedientes para su diligenciamiento.</p>
 </div>
 <div id="integración-de-datos-geo-medellín-y-depuración." class="section level3">
-<h3>1.2 Integración de datos Geo-Medellín y depuración.</h3>
+<h3>1.1 Integración de datos Geo-Medellín y depuración.</h3>
 <div style="text-align: justify">
-<p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore
-itaque iure ipsum sunt omnis quis vel doloremque provident, nam
-perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat
-saepe quo veniam corporis reprehenderit dolores eveniet voluptate
-aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod
-quae rerum ad assumenda enim possimus id tempore, perferendis incidunt
-explicabo facilis laudantium nulla temporibus deserunt est ratione
-corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam
-ratione ut consequuntur quas a, neque sint facere fugit fugiat
-exercitationem recusandae magni quam cumque repellendus illo facilis
-blanditiis eligendi consequatur ducimus id. Error, facilis?</p>
+<p>En esta sección hicimos integración entre los datos de nuestra base
+de datos y los datos encontrados en la plataforma Geo Medellín, esto con
+el fin de encontrar datos faltantes respecto a barrios, comunas,
+posteriormente realizaremos la depuración de la base de datos, donde
+eliminaremos las observaciones con datos faltantes irrecuperables y
+variables que no sean necesarias para el contexto de nuestro
+análisis.</p>
 </div>
 <div id="integración-de-datos-geo-medellín" class="section level4">
-<h4>1.2.1 Integración de datos Geo-Medellín</h4>
+<h4>1.1.1 Integración de datos Geo-Medellín</h4>
 <div style="text-align: justify">
-<p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore
-itaque iure ipsum sunt omnis quis vel doloremque provident, nam
-perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat
-saepe quo veniam corporis reprehenderit dolores eveniet voluptate
-aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod
-quae rerum ad assumenda enim possimus id tempore, perferendis incidunt
-explicabo facilis laudantium nulla temporibus deserunt est ratione
-corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam
-ratione ut consequuntur quas a, neque sint facere fugit fugiat
-exercitationem recusandae magni quam cumque repellendus illo facilis
-blanditiis eligendi consequatur ducimus id. Error, facilis?</p>
+<p>Para la integración de los datos usamos lo datos contenidos en la
+pagina web <a href="https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about">Geo
+medellín</a>, de nuestra base de datos usamos la variable CBML y con los
+primeros 4 dígitos poder obtener los datos faltantes de barrio y comuna
+cruzando los datos entre nuestra base de datos y la de geo Medellín.</p>
 </div>
-<pre><code>## OGR data source with driver: ESRI Shapefile 
-## Source: &quot;G:\Otros ordenadores\Mi portátil\FILES\UNIVERSITY\2022-2\TECNICAS DE ANALISIS ESTADISTICO\TRABAJOS\TRABAJO 3\TAE-Trabajo-3\datos\Catastro_gdb.shp&quot;, layer: &quot;Catastro_gdb&quot;
-## with 349 features
-## It has 10 fields</code></pre>
-<pre><code>##  [1] &quot;AÑO&quot;                   &quot;CBML&quot;                  &quot;CLASE_ACCIDENTE&quot;      
-##  [4] &quot;DIRECCION&quot;             &quot;DIRECCION.ENCASILLADA&quot; &quot;DISEÑO&quot;               
-##  [7] &quot;EXPEDIENTE&quot;            &quot;FECHA_ACCIDENTE&quot;       &quot;FECHA_ACCIDENTES&quot;     
-## [10] &quot;GRAVEDAD_ACCIDENTE&quot;    &quot;MES&quot;                   &quot;NRO_RADICADO&quot;         
-## [13] &quot;NUMCOMUNA&quot;             &quot;BARRIO&quot;                &quot;COMUNA&quot;               
-## [16] &quot;LOCATION&quot;              &quot;X&quot;                     &quot;Y&quot;                    
-## [19] &quot;DISENO&quot;                &quot;DIA_SEMANA&quot;            &quot;HORA_ACCIDENTE&quot;       
-## [22] &quot;TEMP_CBML&quot;             &quot;TEMP2_CBML&quot;</code></pre>
-<pre><code>##  [1] 1640356              39226                28508               
-##  [4] 52647                23632                62196               
-##  [7] 50016000206201749504 1640922              1647286             
-## [10] 30063                29482                31435               
-## [13] 1639954              1640023              1638618             
-## [16] 1618580              1640118              1639346             
-## [19] &lt;NA&gt;                 1647440              &lt;NA&gt;                
-## [22] 50016000206201815040 48996                &lt;NA&gt;                
-## [25] &lt;NA&gt;                 62196                50016000206201520138
-## [28] 37656                50016000206201520138 50016000206201602058
-## [31] 18349                50016000206201552896 58560               
-## [34] 58864                50016000206201815040 1656231             
-## [37] 1655403              1662064             
-## 249489 Levels: 0 12 15 20 38 61 252 327 446 499 545 625 650 655 714 774 812 ... 5.00160002069202e+20</code></pre>
-<pre class="r"><code>#Correccion de tildes
-base2$NOMBRE_BAR &lt;- iconv(base2$NOMBRE_BAR, from = &quot;UTF-8&quot;, to = &quot;ASCII//TRANSLIT&quot;)</code></pre>
-<pre class="r"><code>#separar en dos nuevas variables la longitud y latitud, contenidos en la variables LOCATION
-base2 &lt;- separate(base2,LOCATION,c(&quot;LONGITUD&quot;,&quot;LATITUD&quot;),sep=&quot;,&quot;,convert=TRUE)
-
-#quitamos el &quot;[&quot; del dato
-base2$LONGITUD &lt;- substring(base2$LONGITUD, first = 2)
-
-#Eliminar el espacio entre los numeros
-base2$LATITUD &lt;- gsub(&quot; &quot;,&quot;&quot;, base2$LATITUD)
-
-#eliminar el ultimo elemento &quot;]&quot;
-base2$LATITUD &lt;- gsub(&quot;]&quot;,&quot;&quot;, base2$LATITUD) </code></pre>
-<pre class="r"><code>#renombraremos las variables
-base2 &lt;- plyr::rename(base2,  c(&quot;FECHA_ACCIDENTE&quot;=&quot;FECHA&quot;,&quot;NOMBRE_BAR&quot;=&quot;BARRIO&quot;,&quot;NOMBRE_COM&quot;=&quot;COMUNA&quot;,&quot;GRAVEDAD_ACCIDENTE&quot;=&quot;GRAVEDAD&quot;,&quot;CLASE_ACCIDENTE&quot;=&quot;CLASE&quot;))</code></pre>
-<pre class="r"><code>#EJECUTAR SOLO PARA CREAR EL CSV NUEVO
-#write.csv(base2,&quot;./datos/base_depurada&quot;,fileEncoding = &quot;UTF-8&quot;)</code></pre>
+</div>
+<div id="depuración" class="section level4">
+<h4>1.1.2 Depuración</h4>
+<div style="text-align: justify">
+<p>Luego de hacer la revisión de las variables y eliminar los datos
+irrecuperables, procedemos a eliminar las variables temporales que
+creamos y otras variables presentes en la base de datos las cuales
+consideramos que no son necesarias para realizar el proyecto.</p>
+</div>
 </div>
 </div>
 </div>
@@ -3042,7 +3040,7 @@ base2 &lt;- plyr::rename(base2,  c(&quot;FECHA_ACCIDENTE&quot;=&quot;FECHA&quot;
 </a> </br></p>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlRyYWJham8gMyINCmF1dGhvcjogIkRleW5lciBMw7NwZXogUGluZWRhLCBEYW5pZWwgdG9ycmVzIGFndWlycmUsIEFuZHJlcyBjYW1pbG8gZ2FyY2lhLCB3aWxtYXIsIGFtaWxkZXIiDQpkYXRlOiAiMTMvMTEvMjAyMiINCm91dHB1dDogDQogIGh0bWxfZG9jdW1lbnQ6DQogICAgdGhlbWU6IHNwYWNlbGFiDQogICAgY29kZV9mb2xkaW5nOiBoaWRlDQogICAgY29kZV9kb3dubG9hZDogeWVzDQogICAgZGZfcHJpbnQ6IHBhZ2VkDQogICAgdG9jOiB0cnVlDQogICAgdG9jX2Zsb2F0OiANCiAgICAgIGNvbGFwc2U6IGZhbHNlDQotLS0NCg0KYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9DQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpDQpgYGANCg0KYGBge3IgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRSwgcmVzdWx0cyA9ICdoaWRlJywgZWNobz1GfQ0KIyBMaWJyZXJpYXMNCg0KbGlicmFyeShzdHJpbmdyKTsgbGlicmFyeShkcGx5cik7IGxpYnJhcnkocmdkYWwpOyBsaWJyYXJ5KHBseXIpOyBsaWJyYXJ5KHRpZHl2ZXJzZSk7IGxpYnJhcnkoa2FibGVFeHRyYSk7IGxpYnJhcnkobHVicmlkYXRlKTsgbGlicmFyeShnZ3Bsb3QyKTsgbGlicmFyeShwbG90bHkpOyBsaWJyYXJ5KGdncHVicik7bGlicmFyeShkdW1taWVzKTsNCmxpYnJhcnkocmVhZHhsKTtsaWJyYXJ5KHNmKTtsaWJyYXJ5KEdHYWxseSk7bGlicmFyeShjYXIpO2xpYnJhcnkoTUxtZXRyaWNzKTtsaWJyYXJ5KHdvcmRjbG91ZCk7bGlicmFyeShncGxvdHMpO2xpYnJhcnkoUi51dGlscyk7bGlicmFyeSh0bSk7bGlicmFyeShEZXNjVG9vbHMpO2xpYnJhcnkocmFzdGVyKTtsaWJyYXJ5KG1jbHVzdCk7bGlicmFyeShnZW9zcGhlcmUpO2xpYnJhcnkoTmJDbHVzdCk7bGlicmFyeShmYWN0b2V4dHJhKTtsaWJyYXJ5KHZlZ2FuKTtsaWJyYXJ5KHFwY1IpO2xpYnJhcnkobGVhZmxldCkNCmBgYA0KDQojIyAxLiBJbnRyb2R1Y2Npw7NuDQo8ZGl2IHN0eWxlPSJ0ZXh0LWFsaWduOiBqdXN0aWZ5Ij4NCkxvcmVtIGlwc3VtLCBkb2xvciBzaXQgYW1ldCBjb25zZWN0ZXR1ciBhZGlwaXNpY2luZyBlbGl0LiBJbnZlbnRvcmUgaXRhcXVlIGl1cmUgaXBzdW0gc3VudCBvbW5pcyBxdWlzIHZlbCBkb2xvcmVtcXVlIHByb3ZpZGVudCwgbmFtIHBlcnNwaWNpYXRpcyBpZCBzb2x1dGEgcXVvcyBpc3RlLiBSYXRpb25lIGZhY2VyZSBuZXNjaXVudCB1bmRlLiBSZXBlbGxhdCBzYWVwZSBxdW8gdmVuaWFtIGNvcnBvcmlzIHJlcHJlaGVuZGVyaXQgZG9sb3JlcyBldmVuaWV0IHZvbHVwdGF0ZSBhcGVyaWFtIGVhcXVlIG9mZmljaWE/IFNlZCBhcGVyaWFtIGV0IGVpdXMgb2JjYWVjYXRpLiBTaW1pbGlxdWUgZXggcXVvZCBxdWFlIHJlcnVtIGFkIGFzc3VtZW5kYSBlbmltIHBvc3NpbXVzIGlkIHRlbXBvcmUsIHBlcmZlcmVuZGlzIGluY2lkdW50IGV4cGxpY2FibyBmYWNpbGlzIGxhdWRhbnRpdW0gbnVsbGEgdGVtcG9yaWJ1cyBkZXNlcnVudCBlc3QgcmF0aW9uZSBjb3Jwb3JpcyBzZXF1aSBhbGlxdWFtIG5vc3RydW0gY29uc2VxdXVudHVyISBDdWxwYSBvZmZpY2lhLCBhdXRlbSB2ZW5pYW0gcmF0aW9uZSB1dCBjb25zZXF1dW50dXIgcXVhcyBhLCBuZXF1ZSBzaW50IGZhY2VyZSBmdWdpdCBmdWdpYXQgZXhlcmNpdGF0aW9uZW0gcmVjdXNhbmRhZSBtYWduaSBxdWFtIGN1bXF1ZSByZXBlbGxlbmR1cyBpbGxvIGZhY2lsaXMgYmxhbmRpdGlpcyBlbGlnZW5kaSBjb25zZXF1YXR1ciBkdWNpbXVzIGlkLiBFcnJvciwgZmFjaWxpcz8NCjwvZGl2Pg0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnLCBlY2hvPUZ9DQojTGVjdHVyYSBkZSBsYSBiYXNlIGRlIGRhdG9zDQpiZCA8LSByZWFkLmNzdigiLi9kYXRvcy9pbmNpZGVudGVzX3ZpYWxlcy5jc3YiLCBkZWM9IiwiLCBoZWFkZXI9VCxzZXA9IjsiLCBlbmNvZGluZyA9ICJVVEYtOCIpDQpgYGANCg0KIyMgMS4gRGF0b3MNCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KTG9yZW0gaXBzdW0sIGRvbG9yIHNpdCBhbWV0IGNvbnNlY3RldHVyIGFkaXBpc2ljaW5nIGVsaXQuIEludmVudG9yZSBpdGFxdWUgaXVyZSBpcHN1bSBzdW50IG9tbmlzIHF1aXMgdmVsIGRvbG9yZW1xdWUgcHJvdmlkZW50LCBuYW0gcGVyc3BpY2lhdGlzIGlkIHNvbHV0YSBxdW9zIGlzdGUuIFJhdGlvbmUgZmFjZXJlIG5lc2NpdW50IHVuZGUuIFJlcGVsbGF0IHNhZXBlIHF1byB2ZW5pYW0gY29ycG9yaXMgcmVwcmVoZW5kZXJpdCBkb2xvcmVzIGV2ZW5pZXQgdm9sdXB0YXRlIGFwZXJpYW0gZWFxdWUgb2ZmaWNpYT8gU2VkIGFwZXJpYW0gZXQgZWl1cyBvYmNhZWNhdGkuIFNpbWlsaXF1ZSBleCBxdW9kIHF1YWUgcmVydW0gYWQgYXNzdW1lbmRhIGVuaW0gcG9zc2ltdXMgaWQgdGVtcG9yZSwgcGVyZmVyZW5kaXMgaW5jaWR1bnQgZXhwbGljYWJvIGZhY2lsaXMgbGF1ZGFudGl1bSBudWxsYSB0ZW1wb3JpYnVzIGRlc2VydW50IGVzdCByYXRpb25lIGNvcnBvcmlzIHNlcXVpIGFsaXF1YW0gbm9zdHJ1bSBjb25zZXF1dW50dXIhIEN1bHBhIG9mZmljaWEsIGF1dGVtIHZlbmlhbSByYXRpb25lIHV0IGNvbnNlcXV1bnR1ciBxdWFzIGEsIG5lcXVlIHNpbnQgZmFjZXJlIGZ1Z2l0IGZ1Z2lhdCBleGVyY2l0YXRpb25lbSByZWN1c2FuZGFlIG1hZ25pIHF1YW0gY3VtcXVlIHJlcGVsbGVuZHVzIGlsbG8gZmFjaWxpcyBibGFuZGl0aWlzIGVsaWdlbmRpIGNvbnNlcXVhdHVyIGR1Y2ltdXMgaWQuIEVycm9yLCBmYWNpbGlzPw0KPC9kaXY+DQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsZWNobz1GQUxTRX0NCiNNb3N0cmFtb3MgbGFzIHByaW1lcmFzIDUgb2JzZXJ2YWNpb25lcyBkZSBsYSBiYXNlIGRlIGRhdG9zDQpoZWFkKGJkLG49NSkNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFICwgZWNobz1GQUxTRX0NCiNTZSBjYW1iaWEgZWwgZm9ybWF0YSBkZSBsYSBmZWNoYSBkZWwgYWNjaWRlbnRlDQpiZCRGRUNIQV9BQ0NJREVOVEUgPC0gYXMuRGF0ZShiZCRGRUNIQV9BQ0NJREVOVEUsIGZvcm1hdD0iJWQvJW0vJVkiKQ0KYGBgDQoNCiMjIyAxLjEgUmV2aXNpw7NuIGRlIHZhbG9yZXMgdmFjaW9zDQo8ZGl2IHN0eWxlPSJ0ZXh0LWFsaWduOiBqdXN0aWZ5Ij4NCkxvcmVtIGlwc3VtLCBkb2xvciBzaXQgYW1ldCBjb25zZWN0ZXR1ciBhZGlwaXNpY2luZyBlbGl0LiBJbnZlbnRvcmUgaXRhcXVlIGl1cmUgaXBzdW0gc3VudCBvbW5pcyBxdWlzIHZlbCBkb2xvcmVtcXVlIHByb3ZpZGVudCwgbmFtIHBlcnNwaWNpYXRpcyBpZCBzb2x1dGEgcXVvcyBpc3RlLiBSYXRpb25lIGZhY2VyZSBuZXNjaXVudCB1bmRlLiBSZXBlbGxhdCBzYWVwZSBxdW8gdmVuaWFtIGNvcnBvcmlzIHJlcHJlaGVuZGVyaXQgZG9sb3JlcyBldmVuaWV0IHZvbHVwdGF0ZSBhcGVyaWFtIGVhcXVlIG9mZmljaWE/IFNlZCBhcGVyaWFtIGV0IGVpdXMgb2JjYWVjYXRpLiBTaW1pbGlxdWUgZXggcXVvZCBxdWFlIHJlcnVtIGFkIGFzc3VtZW5kYSBlbmltIHBvc3NpbXVzIGlkIHRlbXBvcmUsIHBlcmZlcmVuZGlzIGluY2lkdW50IGV4cGxpY2FibyBmYWNpbGlzIGxhdWRhbnRpdW0gbnVsbGEgdGVtcG9yaWJ1cyBkZXNlcnVudCBlc3QgcmF0aW9uZSBjb3Jwb3JpcyBzZXF1aSBhbGlxdWFtIG5vc3RydW0gY29uc2VxdXVudHVyISBDdWxwYSBvZmZpY2lhLCBhdXRlbSB2ZW5pYW0gcmF0aW9uZSB1dCBjb25zZXF1dW50dXIgcXVhcyBhLCBuZXF1ZSBzaW50IGZhY2VyZSBmdWdpdCBmdWdpYXQgZXhlcmNpdGF0aW9uZW0gcmVjdXNhbmRhZSBtYWduaSBxdWFtIGN1bXF1ZSByZXBlbGxlbmR1cyBpbGxvIGZhY2lsaXMgYmxhbmRpdGlpcyBlbGlnZW5kaSBjb25zZXF1YXR1ciBkdWNpbXVzIGlkLiBFcnJvciwgZmFjaWxpcz8NCjwvZGl2Pg0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFICwgZWNobz1GQUxTRX0NCiNSZXZpc2Ftb3MgcXVlIHZhcmlhYmxlcyBjb250aWVuZW4gdmFsb3JlcyB2YWNpb3MNCmNvbFN1bXMoaXMubmEoYmQpfGJkPT0iIikNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnLCBlY2hvPUZBTFNFfQ0KIyByZWVtcGxhemFtb3MgbG9zIGRhdG9zIHZhY2lvcyBkZSBsYSB2YXJpYWJsZSBDTEFTRV9BQ0NJREVOVEUNCg0KI0NhbWJpYXIgbG9zIGRhdG9zIHZhY2lvcyBwb3IgIm90cm8iLg0KYmQkQ0xBU0VfQUNDSURFTlRFIDwtIGlmZWxzZShiZCRDTEFTRV9BQ0NJREVOVEUgPT0gIiIsIk90cm8iLGJkJENMQVNFX0FDQ0lERU5URSkgDQoNCiNDb3JyZWNpb24gZGUgdGlsZGVzDQpiZCRDTEFTRV9BQ0NJREVOVEUgPC0gaWNvbnYoYmQkQ0xBU0VfQUNDSURFTlRFLCBmcm9tID0gIlVURi04IiwgdG8gPSAiQVNDSUkvL1RSQU5TTElUIikgDQoNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnLCBlY2hvPUZ9DQojIENhbWJpYXIgZGF0b3MgdmFjaW9zIGRlIGxhIHZhcmlhYmxlIERJU0VOTw0KDQojQ2FtYmlhciBkYXRvcyB2YWNpb3MgcG9yICJubyBlc3BlY2lmaWNhZG8iDQpiZCRESVNFw5FPIDwtIGlmZWxzZShiZCRESVNFw5FPID09ICIiLCJvdHJvIixiZCRESVNFw5FPKQ0KDQojQ29ycmVjY2lvbiBkZSB0aWxkZXMNCmJkJERJU0VOTyA8LSBpY29udihiZCRESVNFw5FPLCBmcm9tID0gIlVURi04Iix0bz0iQVNDSUkvL1RSQU5TTElUIikgDQoNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFICwgZWNobz1GQUxTRX0NCiNDcmVhbW9zIHVuYSBudWV2YSB2YXJpYWJsZXMgcXVlIGNvbnRpZW5lIGVsIGRpYSBkZSBsYSBzZW1hbmEgZW4gcXVlIG9jdXJyaW8gZWwgYWNjaWRlbnRlDQpiZCRESUFfU0VNQU5BIDwtIGZvcm1hdChiZCRGRUNIQV9BQ0NJREVOVEUsIGZvcm1hdD0iJUEiKQ0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFfQ0KI0NyZWFtb3MgdW5hIG51ZXZhIHZhcmlhYmxlcyBsYSBjdWFsIGNvbnRpZW5lIGxhIGhvcmEgZGVsIGFjY2lkZW50ZQ0KYmQkSE9SQV9BQ0NJREVOVEUgPC0gc3Vic3RyKGJkJEZFQ0hBX0FDQ0lERU5URVMsc3RhcnQgPSAxMiAsc3RvcCA9IDE5KQ0KYGBgDQoNCiMjIyAxLjIgSW50ZWdyYWNpw7NuIGRlIGRhdG9zIEdlby1NZWRlbGzDrW4geSBkZXB1cmFjacOzbi4NCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KTG9yZW0gaXBzdW0sIGRvbG9yIHNpdCBhbWV0IGNvbnNlY3RldHVyIGFkaXBpc2ljaW5nIGVsaXQuIEludmVudG9yZSBpdGFxdWUgaXVyZSBpcHN1bSBzdW50IG9tbmlzIHF1aXMgdmVsIGRvbG9yZW1xdWUgcHJvdmlkZW50LCBuYW0gcGVyc3BpY2lhdGlzIGlkIHNvbHV0YSBxdW9zIGlzdGUuIFJhdGlvbmUgZmFjZXJlIG5lc2NpdW50IHVuZGUuIFJlcGVsbGF0IHNhZXBlIHF1byB2ZW5pYW0gY29ycG9yaXMgcmVwcmVoZW5kZXJpdCBkb2xvcmVzIGV2ZW5pZXQgdm9sdXB0YXRlIGFwZXJpYW0gZWFxdWUgb2ZmaWNpYT8gU2VkIGFwZXJpYW0gZXQgZWl1cyBvYmNhZWNhdGkuIFNpbWlsaXF1ZSBleCBxdW9kIHF1YWUgcmVydW0gYWQgYXNzdW1lbmRhIGVuaW0gcG9zc2ltdXMgaWQgdGVtcG9yZSwgcGVyZmVyZW5kaXMgaW5jaWR1bnQgZXhwbGljYWJvIGZhY2lsaXMgbGF1ZGFudGl1bSBudWxsYSB0ZW1wb3JpYnVzIGRlc2VydW50IGVzdCByYXRpb25lIGNvcnBvcmlzIHNlcXVpIGFsaXF1YW0gbm9zdHJ1bSBjb25zZXF1dW50dXIhIEN1bHBhIG9mZmljaWEsIGF1dGVtIHZlbmlhbSByYXRpb25lIHV0IGNvbnNlcXV1bnR1ciBxdWFzIGEsIG5lcXVlIHNpbnQgZmFjZXJlIGZ1Z2l0IGZ1Z2lhdCBleGVyY2l0YXRpb25lbSByZWN1c2FuZGFlIG1hZ25pIHF1YW0gY3VtcXVlIHJlcGVsbGVuZHVzIGlsbG8gZmFjaWxpcyBibGFuZGl0aWlzIGVsaWdlbmRpIGNvbnNlcXVhdHVyIGR1Y2ltdXMgaWQuIEVycm9yLCBmYWNpbGlzPw0KPC9kaXY+DQoNCiMjIyMgMS4yLjEgSW50ZWdyYWNpw7NuIGRlIGRhdG9zIEdlby1NZWRlbGzDrW4NCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KTG9yZW0gaXBzdW0sIGRvbG9yIHNpdCBhbWV0IGNvbnNlY3RldHVyIGFkaXBpc2ljaW5nIGVsaXQuIEludmVudG9yZSBpdGFxdWUgaXVyZSBpcHN1bSBzdW50IG9tbmlzIHF1aXMgdmVsIGRvbG9yZW1xdWUgcHJvdmlkZW50LCBuYW0gcGVyc3BpY2lhdGlzIGlkIHNvbHV0YSBxdW9zIGlzdGUuIFJhdGlvbmUgZmFjZXJlIG5lc2NpdW50IHVuZGUuIFJlcGVsbGF0IHNhZXBlIHF1byB2ZW5pYW0gY29ycG9yaXMgcmVwcmVoZW5kZXJpdCBkb2xvcmVzIGV2ZW5pZXQgdm9sdXB0YXRlIGFwZXJpYW0gZWFxdWUgb2ZmaWNpYT8gU2VkIGFwZXJpYW0gZXQgZWl1cyBvYmNhZWNhdGkuIFNpbWlsaXF1ZSBleCBxdW9kIHF1YWUgcmVydW0gYWQgYXNzdW1lbmRhIGVuaW0gcG9zc2ltdXMgaWQgdGVtcG9yZSwgcGVyZmVyZW5kaXMgaW5jaWR1bnQgZXhwbGljYWJvIGZhY2lsaXMgbGF1ZGFudGl1bSBudWxsYSB0ZW1wb3JpYnVzIGRlc2VydW50IGVzdCByYXRpb25lIGNvcnBvcmlzIHNlcXVpIGFsaXF1YW0gbm9zdHJ1bSBjb25zZXF1dW50dXIhIEN1bHBhIG9mZmljaWEsIGF1dGVtIHZlbmlhbSByYXRpb25lIHV0IGNvbnNlcXV1bnR1ciBxdWFzIGEsIG5lcXVlIHNpbnQgZmFjZXJlIGZ1Z2l0IGZ1Z2lhdCBleGVyY2l0YXRpb25lbSByZWN1c2FuZGFlIG1hZ25pIHF1YW0gY3VtcXVlIHJlcGVsbGVuZHVzIGlsbG8gZmFjaWxpcyBibGFuZGl0aWlzIGVsaWdlbmRpIGNvbnNlcXVhdHVyIGR1Y2ltdXMgaWQuIEVycm9yLCBmYWNpbGlzPw0KPC9kaXY+DQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsIGVjaG89RkFMU0V9DQpjYXRhc3RybyA8LSByZ2RhbDo6cmVhZE9HUihkc24gPSAiLi9kYXRvcy9DYXRhc3Ryb19nZGIuc2hwIiwgbGF5ZXIgPSAiQ2F0YXN0cm9fZ2RiIikNCg0KDQojcXVpdGFtb3MgbG9zIDk2MiBkYXRvcyBkZSBDQk1MIHF1ZSBlc3TDoW4gZXJyYWRvcyAtLS0+IHF1ZWRhbiAyNjk4MDMNCmJkIDwtIGJkWy13aGljaChiZCRDQk1MICVpbiUgYygiQVVDMSIsIkFVQzIiLCJJbnN0XzE0IiwiSW5zdF8xNiIsIkluc3RfMTgiLCJJbnN0XzE5IiwiU2luIEluZiIsIlNOMDEiKSksXQ0KDQojQ3JlYW1vcyB1biBudWV2YSBjb2x1bW5hIGxsYW1hZGEgQ0IgZW4gYmQgcXVlIHNvbG8gZGVqYSBsb3MgcHJpbWVyb3MgNCBkaWdpdG9zIGRlIENCTUwgcGFyYSBidXNjYXJsb3MgZW4gbGEgYmQgZGUgY2F0YXN0cm8geSB0cmFlciBsYSBjb211bmEgeSBlbCBiYXJyaW8gZGUgbG9zIHF1ZSBlc3TDqW4gdmFjaW9zLg0KDQpiZCA8LSBtdXRhdGUoYmQsIFRFTVBfQ0JNTCA9IHN0cl9zdWIoQ0JNTCwxLDQpKQ0KDQojYWdyZWdhbmRvIHVuIGNlcm8gYWRlbGFudGUgYSBsb3MgVEVNUF9DQk1MIHkgY3JlYW5kbyB1bmEgbnVldmEgY29sdW1uYSAtLT4gVEVNUDJfQ0JNTA0KYmQgPC0gbXV0YXRlKGJkLCBURU1QMl9DQk1MPWlmZWxzZShuY2hhcihURU1QX0NCTUwpPT0zLHBhc3RlMCgiMCIsIFRFTVBfQ0JNTCksVEVNUF9DQk1MKSxURU1QX0NCTUwpDQoNCmNvbG5hbWVzKGJkKSNub21icmVzIGRlIGNvbHVtbmFzDQoNCiNiYXNlIHVuaWZpY2FkYQ0KDQpiZCA8LSBpbm5lcl9qb2luKGJkLCBkcGx5cjo6c2VsZWN0KGNhdGFzdHJvQGRhdGEsQ09ESUdPLE5PTUJSRV9DT00sTk9NQlJFX0JBUiksDQogICAgICAgICAgICAgICAgICBieSA9IGMoIlRFTVAyX0NCTUwiID0gIkNPRElHTyIpKSAjcXVlZGFuIDI1NDAwOSBkYXRvcw0KDQoNCiNRdWl0YXIgcmVwZXRpZG9zIHBvciBlbCBpbm5lcl9qb2luDQoNCmJkIDwtIGJkICU+JSAgICAgI2NvbnZpcnRpZW5kbyBlbiBmYWN0b3IgcGFyYSB2ZXIgbWVqb3IgbG9zIMO6bmljb3MNCiAgbXV0YXRlKE5ST19SQURJQ0FETyA9IGFzLmZhY3RvcihOUk9fUkFESUNBRE8pKQ0KcmFkaWNhZG9zX2R1cGxpY2Fkb3MgPC0gYmQkTlJPX1JBRElDQURPW2R1cGxpY2F0ZWQoYmQkTlJPX1JBRElDQURPKV0NCg0KcmFkaWNhZG9zX2R1cGxpY2Fkb3MgICN2ZXJpZmljYXIgZHVwbGljYWRvcw0KcmVnaXN0cm9zX3JhZF9kdXAgPC0gYmQgJT4lIA0KICANCiAgZmlsdGVyKE5ST19SQURJQ0FETyAlaW4lIHJhZGljYWRvc19kdXBsaWNhZG9zKSAlPiUgICMNCiAgYXJyYW5nZShOUk9fUkFESUNBRE8pDQojcmVnaXN0cm9zX3JhZF9kdXANCg0KDQpiZF91bmlmIDwtIGJkICU+JSANCiAgZmlsdGVyKCEoTlJPX1JBRElDQURPICVpbiUgcmFkaWNhZG9zX2R1cGxpY2Fkb3MpKQ0KIzI0NjQxNyBvYnNlcnZhY2lvbmVzIMO6bmljYXMNCg0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFfQ0KI0VsaW1pbmFjaW9uIGRlIHZhcmlhYmxlcyBubyBuZWNlc2FyaWFzDQoNCmJhc2UyIDwtIGRwbHlyOjpzZWxlY3QoYmRfdW5pZiwtWCwtWSwtQkFSUklPLC1DT01VTkEsLURJUkVDQ0lPTi5FTkNBU0lMTEFEQSwtQ0JNTCwtVEVNUF9DQk1MLC1URU1QMl9DQk1MLC1GRUNIQV9BQ0NJREVOVEVTLC1FWFBFRElFTlRFLC1ESVNFw5FPKQ0KDQpgYGANCg0KYGBge3J9DQojQ29ycmVjY2lvbiBkZSB0aWxkZXMNCmJhc2UyJE5PTUJSRV9CQVIgPC0gaWNvbnYoYmFzZTIkTk9NQlJFX0JBUiwgZnJvbSA9ICJVVEYtOCIsIHRvID0gIkFTQ0lJLy9UUkFOU0xJVCIpDQpgYGANCg0KYGBge3J9DQojc2VwYXJhciBlbiBkb3MgbnVldmFzIHZhcmlhYmxlcyBsYSBsb25naXR1ZCB5IGxhdGl0dWQsIGNvbnRlbmlkb3MgZW4gbGEgdmFyaWFibGVzIExPQ0FUSU9ODQpiYXNlMiA8LSBzZXBhcmF0ZShiYXNlMixMT0NBVElPTixjKCJMT05HSVRVRCIsIkxBVElUVUQiKSxzZXA9IiwiLGNvbnZlcnQ9VFJVRSkNCg0KI3F1aXRhbW9zIGVsICJbIiBkZWwgZGF0bw0KYmFzZTIkTE9OR0lUVUQgPC0gc3Vic3RyaW5nKGJhc2UyJExPTkdJVFVELCBmaXJzdCA9IDIpDQoNCiNFbGltaW5hciBlbCBlc3BhY2lvIGVudHJlIGxvcyBudW1lcm9zDQpiYXNlMiRMQVRJVFVEIDwtIGdzdWIoIiAiLCIiLCBiYXNlMiRMQVRJVFVEKQ0KDQojZWxpbWluYXIgZWwgdWx0aW1vIGVsZW1lbnRvICJdIg0KYmFzZTIkTEFUSVRVRCA8LSBnc3ViKCJdIiwiIiwgYmFzZTIkTEFUSVRVRCkgDQpgYGANCg0KYGBge3J9DQojcmVub21icmFyZW1vcyBsYXMgdmFyaWFibGVzDQpiYXNlMiA8LSBwbHlyOjpyZW5hbWUoYmFzZTIsICBjKCJGRUNIQV9BQ0NJREVOVEUiPSJGRUNIQSIsIk5PTUJSRV9CQVIiPSJCQVJSSU8iLCJOT01CUkVfQ09NIj0iQ09NVU5BIiwiR1JBVkVEQURfQUNDSURFTlRFIj0iR1JBVkVEQUQiLCJDTEFTRV9BQ0NJREVOVEUiPSJDTEFTRSIpKQ0KYGBgDQoNCg0KYGBge3J9DQojRUpFQ1VUQVIgU09MTyBQQVJBIENSRUFSIEVMIENTViBOVUVWTw0KI3dyaXRlLmNzdihiYXNlMiwiLi9kYXRvcy9iYXNlX2RlcHVyYWRhIixmaWxlRW5jb2RpbmcgPSAiVVRGLTgiKQ0KYGBgDQoNCiMjIFJlZmVyZW5jaWFzDQo8YSBocmVmPSJodHRwczovL2dlb21lZGVsbGluLW0tbWVkZWxsaW4ub3BlbmRhdGEuYXJjZ2lzLmNvbS9kYXRhc2V0cy9NLU1lZGVsbGluOjpsaW1pdGUtYmFycmlvLXZlcmVkYS1jYXRhc3RyYWwvYWJvdXQiPiBodHRwczovL2dlb21lZGVsbGluLW0tbWVkZWxsaW4ub3BlbmRhdGEuYXJjZ2lzLmNvbS9kYXRhc2V0cy9NLU1lZGVsbGluOjpsaW1pdGUtYmFycmlvLXZlcmVkYS1jYXRhc3RyYWwvYWJvdXQgPC9hPg0KPC9icj4NCg0KDQoNCg0KDQoNCg0KDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlRyYWJham8gMyINCmF1dGhvcjogIkRleW5lciBMw7NwZXogUGluZWRhLCBEYW5pZWwgdG9ycmVzIGFndWlycmUsIEFuZHJlcyBjYW1pbG8gZ2FyY2lhLCB3aWxtYXIsIGFtaWxkZXIiDQpkYXRlOiAiMTMvMTEvMjAyMiINCm91dHB1dDogDQogIGh0bWxfZG9jdW1lbnQ6DQogICAgdGhlbWU6IHNwYWNlbGFiDQogICAgY29kZV9mb2xkaW5nOiBoaWRlDQogICAgY29kZV9kb3dubG9hZDogeWVzDQogICAgZGZfcHJpbnQ6IHBhZ2VkDQogICAgdG9jOiB0cnVlDQogICAgdG9jX2Zsb2F0OiANCiAgICAgIGNvbGFwc2U6IGZhbHNlDQotLS0NCg0KYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9DQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpDQpgYGANCg0KYGBge3IgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRSwgcmVzdWx0cyA9ICdoaWRlJywgZWNobz1GfQ0KIyBMaWJyZXJpYXMNCg0KbGlicmFyeShzdHJpbmdyKTsgbGlicmFyeShkcGx5cik7IGxpYnJhcnkocmdkYWwpOyBsaWJyYXJ5KHBseXIpOyBsaWJyYXJ5KHRpZHl2ZXJzZSk7IGxpYnJhcnkoa2FibGVFeHRyYSk7IGxpYnJhcnkobHVicmlkYXRlKTsgbGlicmFyeShnZ3Bsb3QyKTsgbGlicmFyeShwbG90bHkpOyBsaWJyYXJ5KGdncHVicik7bGlicmFyeShkdW1taWVzKTsNCmxpYnJhcnkocmVhZHhsKTtsaWJyYXJ5KHNmKTtsaWJyYXJ5KEdHYWxseSk7bGlicmFyeShjYXIpO2xpYnJhcnkoTUxtZXRyaWNzKTtsaWJyYXJ5KHdvcmRjbG91ZCk7bGlicmFyeShncGxvdHMpO2xpYnJhcnkoUi51dGlscyk7bGlicmFyeSh0bSk7bGlicmFyeShEZXNjVG9vbHMpO2xpYnJhcnkocmFzdGVyKTtsaWJyYXJ5KG1jbHVzdCk7bGlicmFyeShnZW9zcGhlcmUpO2xpYnJhcnkoTmJDbHVzdCk7bGlicmFyeShmYWN0b2V4dHJhKTtsaWJyYXJ5KHZlZ2FuKTtsaWJyYXJ5KHFwY1IpO2xpYnJhcnkobGVhZmxldCkNCmBgYA0KDQojIyAxLiBJbnRyb2R1Y2Npw7NuDQo8ZGl2IHN0eWxlPSJ0ZXh0LWFsaWduOiBqdXN0aWZ5Ij4NCkxvcmVtIGlwc3VtLCBkb2xvciBzaXQgYW1ldCBjb25zZWN0ZXR1ciBhZGlwaXNpY2luZyBlbGl0LiBJbnZlbnRvcmUgaXRhcXVlIGl1cmUgaXBzdW0gc3VudCBvbW5pcyBxdWlzIHZlbCBkb2xvcmVtcXVlIHByb3ZpZGVudCwgbmFtIHBlcnNwaWNpYXRpcyBpZCBzb2x1dGEgcXVvcyBpc3RlLiBSYXRpb25lIGZhY2VyZSBuZXNjaXVudCB1bmRlLiBSZXBlbGxhdCBzYWVwZSBxdW8gdmVuaWFtIGNvcnBvcmlzIHJlcHJlaGVuZGVyaXQgZG9sb3JlcyBldmVuaWV0IHZvbHVwdGF0ZSBhcGVyaWFtIGVhcXVlIG9mZmljaWE/IFNlZCBhcGVyaWFtIGV0IGVpdXMgb2JjYWVjYXRpLiBTaW1pbGlxdWUgZXggcXVvZCBxdWFlIHJlcnVtIGFkIGFzc3VtZW5kYSBlbmltIHBvc3NpbXVzIGlkIHRlbXBvcmUsIHBlcmZlcmVuZGlzIGluY2lkdW50IGV4cGxpY2FibyBmYWNpbGlzIGxhdWRhbnRpdW0gbnVsbGEgdGVtcG9yaWJ1cyBkZXNlcnVudCBlc3QgcmF0aW9uZSBjb3Jwb3JpcyBzZXF1aSBhbGlxdWFtIG5vc3RydW0gY29uc2VxdXVudHVyISBDdWxwYSBvZmZpY2lhLCBhdXRlbSB2ZW5pYW0gcmF0aW9uZSB1dCBjb25zZXF1dW50dXIgcXVhcyBhLCBuZXF1ZSBzaW50IGZhY2VyZSBmdWdpdCBmdWdpYXQgZXhlcmNpdGF0aW9uZW0gcmVjdXNhbmRhZSBtYWduaSBxdWFtIGN1bXF1ZSByZXBlbGxlbmR1cyBpbGxvIGZhY2lsaXMgYmxhbmRpdGlpcyBlbGlnZW5kaSBjb25zZXF1YXR1ciBkdWNpbXVzIGlkLiBFcnJvciwgZmFjaWxpcz8NCjwvZGl2Pg0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnLCBlY2hvPUZ9DQojTGVjdHVyYSBkZSBsYSBiYXNlIGRlIGRhdG9zDQpiZCA8LSByZWFkLmNzdigiLi9kYXRvcy9pbmNpZGVudGVzX3ZpYWxlcy5jc3YiLCBkZWM9IiwiLCBoZWFkZXI9VCxzZXA9IjsiKQ0KYGBgDQoNCiMjIDEuIERhdG9zDQo8ZGl2IHN0eWxlPSJ0ZXh0LWFsaWduOiBqdXN0aWZ5Ij4NCkxvcyBkYXRvcyBmdWVyb24gb2J0ZW5pZG9zIGRlIGxhIHBsYXRhZm9ybWEgW21lZGF0YV0oaHR0cDovL21lZGF0YS5nb3YuY28vZGF0YXNldC9pbmNpZGVudGVzLXZpYWxlcyksIGxhIGJhc2UgZGUgZGF0b3MgY3VlbnRhIGNvbiB1biB0b3RhbCBkZSAyNzAuNzY1IG9ic2VydmFjaW9uZXMgY29uIDE4IHZhcmlhYmxlcywgZGF0b3Mgb2J0ZW5pZG9zIGVuIGVsIHBlcmlvZG8gY29tcHJlbmRpZG8gZW50cmUgZWwgYcOxbyAyMDE0IHkgMjAyMCwgZW4gbGEgc2lndWllbnRlIHNlY2Npw7NuIHJlYWxpemFtb3MgbGEgbGltcGllemEgZGUgbG9zIGRhdG9zIHkgb3JnYW5pemFjacOzbiBkZSBsb3MgbWlzbW9zIHBhcmEgcmVhbGl6YXIgdW4gYW7DoWxpc2lzIGRlc2NyaXB0aXZvIGRlIGVzdG9zIHkgcG9zdGVyaW9ybWVudGUgcmVhbGl6YXIgbG9zIGFncnVwYW1pZW50byBzb2xpY2l0YWRvcyB5IGxhIHByZWRpY2Npw7NuIGRlIGFjY2lkZW50YWxpZGFkLg0KPC9kaXY+DQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsZWNobz1GQUxTRX0NCiNNb3N0cmFtb3MgbGFzIHByaW1lcmFzIDUgb2JzZXJ2YWNpb25lcyBkZSBsYSBiYXNlIGRlIGRhdG9zDQpoZWFkKGJkLG49NSkNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFICwgZWNobz1GQUxTRX0NCiNTZSBjYW1iaWEgZWwgZm9ybWF0YSBkZSBsYSBmZWNoYSBkZWwgYWNjaWRlbnRlDQpiZCRGRUNIQV9BQ0NJREVOVEUgPC0gYXMuRGF0ZShiZCRGRUNIQV9BQ0NJREVOVEUsIGZvcm1hdD0iJWQvJW0vJVkiKQ0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFICwgcmVzdWx0cz0gJ2hpZGUnfQ0KI1JldmlzYW1vcyBxdWUgdmFyaWFibGVzIGNvbnRpZW5lbiB2YWxvcmVzIHZhY2lvcw0KY29sU3Vtcyhpcy5uYShiZCl8YmQ9PSIiKQ0KYGBgDQoNCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KQSBjb250aW51YWNpw7NuLCBzZSBoYWNlIGxhIHJldmlzacOzbiB5IGRlc2NyaXBjacOzbiBkZSBjYWRhIHZhcmlhYmxlIGNvbiBlbCBmaW4gZGUgZW5jb250cmFyIGRhdG9zIGluY29uc2lzdGVudGVzLCBlc3RvIHNlIHJlYWxpem8gcmV2aXNhbmRvIGVsIGNzdiBlbiBleGNlbCBwYXJhIGRhdG9zIGluY29uc2lzdGVudGVzIHkgZW4gUiBwYXJhIGxvcyBkYXRvcyBmYWx0YW50ZXMuDQoNCioqQcORTzoqKiBhw7FvIGRlIG9jdXJyZW5jaWEgZGVsIGluY2lkZW50ZS4gKDIwMTQgaGFzdGEgMjAxNikNCg0KKipDQk1MOioqIGVzIGVsIGPDs2RpZ28gY2F0YXN0cmFsIHF1ZSBjb3JyZXNwb25kZSBhbCBjw7NkaWdvIGNvbXVuYSwgYmFycmlvLCBtYW56YW5hLCBsb3RlIGNhdGFzdHJhbCBkZSB1biBwcmVkaW8uIEVuIGVzdGUgZW5jb250cmFtb3MgMTguMTU2IHZhY8Otb3MgeSBhZGljaW9uYWxtZW50ZSB0aWVuZSA5NjIgcmVnaXN0cm9zIGNvbiBjYXJhY3RlcmVzIGV4dHJhw7FvcyBjb21vOiBBVUMxLCBBVUMyLCBJbnN0XzE0LCBJbnN0XzE2LCBJbnN0XzE4LCBJbnN0XzE5LCBTaW4gSW5mLCBTTjAxLCBwYXJhIHVuIHRvdGFsIGRlIDE5LjExOCByZWdpc3Ryb3MgbWFsIGVzdHJ1Y3R1cmFkb3MgbyB2YWPDrW9zLg0KDQoqKkNMQVNFX0FDQ0lERU5URToqKiBjbGFzaWZpY2FjacOzbiBkZWwgSVBBVCAoSW5mb3JtZSBQb2xpY2l2byBkZSBBY2NpZGVudGUgZGUgdHLDoW5zaXRvKSBzb2JyZSBsYSBjbGFzZSBkZSBhY2NpZGVudGUgZGUgdHLDoW5zaXRvLCBoYXkgNSB0aXBvcyBkZSBjbGFzaWZpY2FjacOzbiwgY2hvcXVlLCBhdHJvcGVsbG8sIHZvbGNhbWllbnRvLCBjYcOtZGEgZGUgb2N1cGFudGUsIGluY2VuZGlvIHkgYWRpY2lvbmFsIHNlIGhheSBvdHJhIGNsYXNpZmljYWNpw7NuIGRlbm9taW5hZGEgY29tbyDigJxvdHJv4oCdLiBFbiBlc3RhIHZhcmlhYmxlIGVuY29udHJhbW9zIHVuIHRvdGFsIGRlIDYgZGF0b3MgdmFjw61vcyBsb3MgY3VhbGVzIHNlIGNhbWJpYXLDoW4gcG9yIOKAnG90cm/igJ0uDQoNCioqRElTRcORTzoqKiBlc3RhIGNvcnJlc3BvbmRlIGFsIHNpdGlvIGRvbmRlIG9jdXJyacOzIGVsIGFjY2lkZW50ZSAoQ2ljbG9ycnV0YSwgR2xvcmlldGEsIEludGVyc2VjY2nDs24sIExvdGUgbyBQcmVkaW8sIFBhc28gYSBOaXZlbCwgUGFzbyBFbGV2YWRvLCBQYXNvIEluZmVyaW9yLCBQb250w7NuLCBQdWVudGUsIFRyYW1vIGRlIHbDrWEsIFTDum5lbCwgVsOtYSBwZWF0b25hbCkuIEVuIGVzdGEgZW5jb250cmFtb3MgMS4xNDggdmFjw61vcyBsb3MgY3VhbGVzIHNlIHJlZW1wbGF6YXLDoW4gcG9yIOKAnG90cm/igJ0uDQoNCioqQkFSUklPOioqIGJhcnJpbyBkZSBvY3VycmVuY2lhIGRlbCBpbmNpZGVudGUgdmlhbCwgZW4gZXN0ZSBlbmNvbnRyYW1vcyAxOS4wMDYgdmFjw61vcyxBZGVtw6FzIHNlIHRpZW5lbiAxLjgyMiByZWdpc3Ryb3MgYWRpY2lvbmFsZXMgY29uIGNhcsOhY3RlcmVzIGNvbW86IG7Dum1lcm9zIGVudHJlIDAgeSA5LjA4NiwgQVVDMSwgQVVDMiwgSW5zdCwgU2luIEluZiwgU2luIG5vbWJyZS4NCg0KKipDT01VTkE6KiogZGVub21pbmFjacOzbiBjb24gbGEgY3VhbCBzZSBpZGVudGlmaWNhIGNhZGEgQ29tdW5hIG8gQ29ycmVnaW1pZW50bywgZW4gZXN0ZSBlbmNvbnRyYW1vcyAxMi43OTggdmFjw61vcyBhZGVtYXMgc2UgdGllbmVuIDcuMDY0IHJlZ2lzdHJvcyBhZGljaW9uYWxlcyBjb24gY2Fyw6FjdGVyZXMgY29tbzogTm8gR2VvcmVmLCAwLCBJbiwgQVUsIFNpbiBJbmYsIFNOLg0KDQoqKk5VTUNPTVVOQToqKiBuw7ptZXJvIGRlIGxhIGNvbXVuYSBlbiBsYSBxdWUgb2N1cnJpw7MgaW5jaWRlbnRlIHZpYWwsIHNlIGVuY29udHJhcm9uIDIwLjExNiByZWdpc3Ryb3MgYWRpY2lvbmFsZXMgY29uIGNhcmFjdGVyZXMgY29tbzogQVUsIEluLCBTaW4gSW5mLCBTTi4NCg0KKipMT0NBVElPTjoqKiBmdWVudGUgZGUgaW5mb3JtYWNpw7NuIGNvbiBsYSBjdWFsIHNlIHJlYWxpesOzIGxhIGdlbyBjb2RpZmljYWNpw7NuLCBjb250aWVuZSBsYSBsYXRpdHVkIHkgbG9uZ2l0dWQsIFBvc3Rlcmlvcm1lbnRlIHNlcsOhIHNlcGFyYWRhIGVuIGRvcyB2YXJpYWJsZXMuDQoNCioqWDoqKmNvb3JkZW5hZGEgWCBlbiBtZXRyb3MgZGVsIGFjY2lkZW50ZSwgZW4gc2lzdGVtYSBkZSBjb29yZGVuYWRhcyBNQUdOQSBNZWRlbGzDrW4gTG9jYWwuDQoNCioqWToqKiBjb29yZGVuYWRhIFkgZW4gbWV0cm9zIGRlbCBhY2NpZGVudGUsIGVuIHNpc3RlbWEgZGUgY29vcmRlbmFkYXMgTUFHTkEgTWVkZWxsw61uIExvY2FsLg0KDQoqKk5ST19SQURJQ0FETzoqKiBjb25zZWN1dGl2byBxdWUgYXNpZ25hIFVORSwgc2Vnw7puIGVsIG9yZGVuIGRlIGxsZWdhZGEgZGUgbG9zIGV4cGVkaWVudGVzIHBhcmEgc3UgZGlsaWdlbmNpYW1pZW50by4NCg0KKipNRVM6KiogbWVzIGRlIG9jdXJyZW5jaWEgZGVsIGluY2lkZW50ZSB2aWFsLiBFc3RhIHZhcmlhYmxlIG5vIHNlIG1vZGlmaWNhLg0KDQoqKkdSQVZFREFEX0FDQ0lERU5URToqKiBjbGFzaWZpY2FjacOzbiBkZWwgSVBBVCAoSW5mb3JtZSBQb2xpY2lhbCBkZSBBY2NpZGVudGVzIGRlIFRyw6Fuc2l0bykgc29icmUgbGEgZ3JhdmVkYWQgZGVsIGFjY2lkZW50ZSwgY29ycmVzcG9uZGUgYWwgcmVzdWx0YWRvIG3DoXMgZ3JhdmUgcHJlc2VudGFkbyBlbiBlbCBhY2NpZGVudGUuIERhw7FvcyBtYXRlcmlhbGVzIOKAnFPDs2xvIGRhw7Fvc+KAnSwgYWNjaWRlbnRlIGNvbiBoZXJpZG9zIOKAnEhlcmlkb+KAnSwgYWNjaWRlbnRlIGNvbiBtdWVydG9zIOKAnE11ZXJ0b+KAnSxlbiBlc3RhIHZhcmlhYmxlIHNlIGNhbWJpYSBsYSBjb2RpZmljYWNpw7NuIGEgVVRGLTgNCg0KKipGRUNIQV9BQ0NJREVOVEVTOioqIGZlY2hhIGRlIGxvcyBhY2NpZGVudGUgKGZvcm1hdG8gWVlZWS1NTS1ERCBoaDptaTpzcyksIHByb3ZpZW5lIGRlbCBJUEFUIChJbmZvcm1lIFBvbGljaWFsIGRlIGFjY2lkZW50ZXMgZGUgVHLDoW5zaXRvKQ0KDQoqKkZFQ0hBX0FDQ0lERU5URToqKiBmZWNoYSBkZWwgYWNjaWRlbnRlLCBwcm92aWVuZSBkZWwgSVBBVCAoSW5mb3JtZSBQb2xpY2lhbCBkZSBhY2NpZGVudGUgZGUgVHLDoW5zaXRvKSBlc3RhIHZhcmlhYmxlIHBvc3Rlcmlvcm1lbnRlIHNlIGVsaW1pbmEgZGViaWRvIGEgcXVlIHByb3BvcmNpb25hIG1lbm9zIGluZm9ybWFjacOzbiBxdWUgbGEgdmFyaWFibGUgRkVDSEFfQUNDSURFTlRFUy4NCg0KKipFWFBFRElFTlRFOioqIGNvbnNlY3V0aXZvIHF1ZSBhc2lnbmEgVU5FLCBzZWfDum4gZWwgb3JkZW4gZGUgbGxlZ2FkYSBkZSBsb3MgZXhwZWRpZW50ZXMgcGFyYSBzdSBkaWxpZ2VuY2lhbWllbnRvLiBFc3RhIHZhcmlhYmxlIHBvc3Rlcmlvcm1lbnRlIHNlIGVsaW1pbmEuDQoNCioqRElSRUNDSU9OIEVOQ0FTSUxMQURBOioqIGRpcmVjY2nDs24gZW5jYXNpbGxhZGEgcXVlIGVudHJlZ2EgZWwgZ2VvIGNvZGlmaWNhZG9yLiBFc3RhIHZhcmlhYmxlIHNlIGVsaW1pbmEuDQoNCioqRElSRUNDSU9OOioqIGRpcmVjY2nDs24gZG9uZGUgb2N1cnJpw7MgZWwgaW5jaWRlbnRlLiBFc3RhIHZhcmlhYmxlIG5vIHNlIG1vZGlmaWNhLg0KDQoqKk5ST19SQURJQ0FETzoqKiBjb25zZWN1dGl2byBxdWUgYXNpZ25hIFVORSwgc2Vnw7puIGVsIG9yZGVuIGRlIGxsZWdhZGEgZGUgbG9zIGV4cGVkaWVudGVzIHBhcmEgc3UgZGlsaWdlbmNpYW1pZW50by4NCg0KPC9kaXY+DQoNCg0KYGBge3IgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRSwgcmVzdWx0cyA9ICdoaWRlJywgZWNobz1GQUxTRX0NCiMgcmVlbXBsYXphbW9zIGxvcyBkYXRvcyB2YWNpb3MgZGUgbGEgdmFyaWFibGUgQ0xBU0VfQUNDSURFTlRFDQoNCiNDYW1iaWFyIGxvcyBkYXRvcyB2YWNpb3MgcG9yICJvdHJvIi4NCmJkJENMQVNFX0FDQ0lERU5URSA8LSBpZmVsc2UoYmQkQ0xBU0VfQUNDSURFTlRFID09ICIiLCJPdHJvIixiZCRDTEFTRV9BQ0NJREVOVEUpIA0KDQojQ29ycmVjaW9uIGRlIHRpbGRlcw0KYmQkQ0xBU0VfQUNDSURFTlRFIDwtIGljb252KGJkJENMQVNFX0FDQ0lERU5URSwgZnJvbSA9ICJVVEYtOCIsIHRvID0gIkFTQ0lJLy9UUkFOU0xJVCIpIA0KDQpgYGANCg0KYGBge3IgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRSwgcmVzdWx0cyA9ICdoaWRlJywgZWNobz1GfQ0KIyBDYW1iaWFyIGRhdG9zIHZhY2lvcyBkZSBsYSB2YXJpYWJsZSBESVNFTk8NCg0KI0NhbWJpYXIgZGF0b3MgdmFjaW9zIHBvciAibm8gZXNwZWNpZmljYWRvIg0KYmQkRElTRU5PIDwtIGlmZWxzZShiZCRESVNFTk8gPT0gIiIsIm90cm8iLGJkJERJU0VOTykNCg0KI0NvcnJlY2Npb24gZGUgdGlsZGVzDQpiZCRESVNFTk8gPC0gaWNvbnYoYmQkRElTRU5PLCBmcm9tID0gIlVURi04Iix0bz0iQVNDSUkvL1RSQU5TTElUIikgDQoNCmBgYA0KDQpgYGB7ciBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFICwgZWNobz1GQUxTRX0NCiNDcmVhbW9zIHVuYSBudWV2YSB2YXJpYWJsZXMgcXVlIGNvbnRpZW5lIGVsIGRpYSBkZSBsYSBzZW1hbmEgZW4gcXVlIG9jdXJyaW8gZWwgYWNjaWRlbnRlDQpiZCRESUFfU0VNQU5BIDwtIGZvcm1hdChiZCRGRUNIQV9BQ0NJREVOVEUsIGZvcm1hdD0iJUEiKQ0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnfQ0KI0NyZWFtb3MgdW5hIG51ZXZhIHZhcmlhYmxlcyBsYSBjdWFsIGNvbnRpZW5lIGxhIGhvcmEgZGVsIGFjY2lkZW50ZQ0KYmQkSE9SQV9BQ0NJREVOVEUgPC0gc3Vic3RyKGJkJEZFQ0hBX0FDQ0lERU5URVMsc3RhcnQgPSAxMiAsc3RvcCA9IDE5KQ0KYGBgDQoNCiMjIyAxLjEgSW50ZWdyYWNpw7NuIGRlIGRhdG9zIEdlby1NZWRlbGzDrW4geSBkZXB1cmFjacOzbi4NCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KRW4gZXN0YSBzZWNjacOzbiBoaWNpbW9zIGludGVncmFjacOzbiBlbnRyZSBsb3MgZGF0b3MgZGUgbnVlc3RyYSBiYXNlIGRlIGRhdG9zIHkgbG9zIGRhdG9zIGVuY29udHJhZG9zIGVuIGxhIHBsYXRhZm9ybWEgR2VvIE1lZGVsbMOtbiwgZXN0byBjb24gZWwgZmluIGRlIGVuY29udHJhciBkYXRvcyBmYWx0YW50ZXMgcmVzcGVjdG8gYSBiYXJyaW9zLCBjb211bmFzLCBwb3N0ZXJpb3JtZW50ZSByZWFsaXphcmVtb3MgbGEgZGVwdXJhY2nDs24gZGUgbGEgYmFzZSBkZSBkYXRvcywgZG9uZGUgZWxpbWluYXJlbW9zIGxhcyBvYnNlcnZhY2lvbmVzIGNvbiBkYXRvcyBmYWx0YW50ZXMgaXJyZWN1cGVyYWJsZXMgeSB2YXJpYWJsZXMgcXVlIG5vIHNlYW4gbmVjZXNhcmlhcyBwYXJhIGVsIGNvbnRleHRvIGRlIG51ZXN0cm8gYW7DoWxpc2lzLg0KPC9kaXY+DQoNCiMjIyMgMS4xLjEgSW50ZWdyYWNpw7NuIGRlIGRhdG9zIEdlby1NZWRlbGzDrW4NCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KUGFyYSBsYSBpbnRlZ3JhY2nDs24gZGUgbG9zIGRhdG9zIHVzYW1vcyBsbyBkYXRvcyBjb250ZW5pZG9zIGVuIGxhIHBhZ2luYSB3ZWIgW0dlbyBtZWRlbGzDrW5dKGh0dHBzOi8vZ2VvbWVkZWxsaW4tbS1tZWRlbGxpbi5vcGVuZGF0YS5hcmNnaXMuY29tL2RhdGFzZXRzL00tTWVkZWxsaW46OmxpbWl0ZS1iYXJyaW8tdmVyZWRhLWNhdGFzdHJhbC9hYm91dCksIGRlIG51ZXN0cmEgYmFzZSBkZSBkYXRvcyB1c2Ftb3MgbGEgdmFyaWFibGUgQ0JNTCB5IGNvbiBsb3MgcHJpbWVyb3MgNCBkw61naXRvcyBwb2RlciBvYnRlbmVyIGxvcyBkYXRvcyBmYWx0YW50ZXMgZGUgYmFycmlvIHkgY29tdW5hIGNydXphbmRvIGxvcyBkYXRvcyBlbnRyZSBudWVzdHJhIGJhc2UgZGUgZGF0b3MgeSBsYSBkZSBnZW8gTWVkZWxsw61uLg0KPC9kaXY+DQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsIGVjaG89RkFMU0UsIHJlc3VsdHMgPSAnaGlkZSd9DQpjYXRhc3RybyA8LSByZ2RhbDo6cmVhZE9HUihkc24gPSAiLi9kYXRvcy9DYXRhc3Ryb19nZGIuc2hwIiwgbGF5ZXIgPSAiQ2F0YXN0cm9fZ2RiIikNCg0KDQojcXVpdGFtb3MgbG9zIDk2MiBkYXRvcyBkZSBDQk1MIHF1ZSBlc3TDoW4gZXJyYWRvcyAtLS0+IHF1ZWRhbiAyNjk4MDMNCmJkIDwtIGJkWy13aGljaChiZCRDQk1MICVpbiUgYygiQVVDMSIsIkFVQzIiLCJJbnN0XzE0IiwiSW5zdF8xNiIsIkluc3RfMTgiLCJJbnN0XzE5IiwiU2luIEluZiIsIlNOMDEiKSksXQ0KDQojQ3JlYW1vcyB1biBudWV2YSBjb2x1bW5hIGxsYW1hZGEgQ0IgZW4gYmQgcXVlIHNvbG8gZGVqYSBsb3MgcHJpbWVyb3MgNCBkaWdpdG9zIGRlIENCTUwgcGFyYSBidXNjYXJsb3MgZW4gbGEgYmQgZGUgY2F0YXN0cm8geSB0cmFlciBsYSBjb211bmEgeSBlbCBiYXJyaW8gZGUgbG9zIHF1ZSBlc3TDqW4gdmFjaW9zLg0KDQpiZCA8LSBtdXRhdGUoYmQsIFRFTVBfQ0JNTCA9IHN0cl9zdWIoQ0JNTCwxLDQpKQ0KDQojYWdyZWdhbmRvIHVuIGNlcm8gYWRlbGFudGUgYSBsb3MgVEVNUF9DQk1MIHkgY3JlYW5kbyB1bmEgbnVldmEgY29sdW1uYSAtLT4gVEVNUDJfQ0JNTA0KYmQgPC0gbXV0YXRlKGJkLCBURU1QMl9DQk1MPWlmZWxzZShuY2hhcihURU1QX0NCTUwpPT0zLHBhc3RlMCgiMCIsIFRFTVBfQ0JNTCksVEVNUF9DQk1MKSxURU1QX0NCTUwpDQoNCmNvbG5hbWVzKGJkKSNub21icmVzIGRlIGNvbHVtbmFzDQoNCiNiYXNlIHVuaWZpY2FkYQ0KDQpiZCA8LSBpbm5lcl9qb2luKGJkLCBkcGx5cjo6c2VsZWN0KGNhdGFzdHJvQGRhdGEsQ09ESUdPLE5PTUJSRV9DT00sTk9NQlJFX0JBUiksDQogICAgICAgICAgICAgICAgICBieSA9IGMoIlRFTVAyX0NCTUwiID0gIkNPRElHTyIpKSAjcXVlZGFuIDI1NDAwOSBkYXRvcw0KDQoNCiNRdWl0YXIgcmVwZXRpZG9zIHBvciBlbCBpbm5lcl9qb2luDQoNCmJkIDwtIGJkICU+JSAgICAgI2NvbnZpcnRpZW5kbyBlbiBmYWN0b3IgcGFyYSB2ZXIgbWVqb3IgbG9zIMO6bmljb3MNCiAgbXV0YXRlKE5ST19SQURJQ0FETyA9IGFzLmZhY3RvcihOUk9fUkFESUNBRE8pKQ0KcmFkaWNhZG9zX2R1cGxpY2Fkb3MgPC0gYmQkTlJPX1JBRElDQURPW2R1cGxpY2F0ZWQoYmQkTlJPX1JBRElDQURPKV0NCg0KcmFkaWNhZG9zX2R1cGxpY2Fkb3MgICN2ZXJpZmljYXIgZHVwbGljYWRvcw0KcmVnaXN0cm9zX3JhZF9kdXAgPC0gYmQgJT4lIA0KICANCiAgZmlsdGVyKE5ST19SQURJQ0FETyAlaW4lIHJhZGljYWRvc19kdXBsaWNhZG9zKSAlPiUgICMNCiAgYXJyYW5nZShOUk9fUkFESUNBRE8pDQojcmVnaXN0cm9zX3JhZF9kdXANCg0KDQpiZF91bmlmIDwtIGJkICU+JSANCiAgZmlsdGVyKCEoTlJPX1JBRElDQURPICVpbiUgcmFkaWNhZG9zX2R1cGxpY2Fkb3MpKQ0KIzI0NjQxNyBvYnNlcnZhY2lvbmVzIMO6bmljYXMNCg0KYGBgDQoNCiMjIyMgMS4xLjIgRGVwdXJhY2nDs24NCjxkaXYgc3R5bGU9InRleHQtYWxpZ246IGp1c3RpZnkiPg0KTHVlZ28gZGUgaGFjZXIgbGEgcmV2aXNpw7NuIGRlIGxhcyB2YXJpYWJsZXMgeSBlbGltaW5hciBsb3MgZGF0b3MgaXJyZWN1cGVyYWJsZXMsIHByb2NlZGVtb3MgYSBlbGltaW5hciBsYXMgdmFyaWFibGVzIHRlbXBvcmFsZXMgcXVlIGNyZWFtb3MgeSBvdHJhcyB2YXJpYWJsZXMgcHJlc2VudGVzIGVuIGxhIGJhc2UgZGUgZGF0b3MgbGFzIGN1YWxlcyBjb25zaWRlcmFtb3MgcXVlIG5vIHNvbiBuZWNlc2FyaWFzIHBhcmEgcmVhbGl6YXIgZWwgcHJveWVjdG8uDQo8L2Rpdj4NCg0KYGBge3IgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRSAsIGVjaG89RkFMU0UsIHJlc3VsdHMgPSAnaGlkZSd9DQojRWxpbWluYWNpb24gZGUgdmFyaWFibGVzIG5vIG5lY2VzYXJpYXMNCg0KYmFzZTIgPC0gZHBseXI6OnNlbGVjdChiZF91bmlmLC1YLC1ZLC1CQVJSSU8sLUNPTVVOQSwtRElSRUNDSU9OLkVOQ0FTSUxMQURBLC1DQk1MLC1URU1QX0NCTUwsLVRFTVAyX0NCTUwsLUZFQ0hBX0FDQ0lERU5URVMsLUVYUEVESUVOVEUsLU5ST19SQURJQ0FETykNCg0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnfQ0KI0NvcnJlY2Npb24gZGUgdGlsZGVzDQpiYXNlMiROT01CUkVfQkFSIDwtIGljb252KGJhc2UyJE5PTUJSRV9CQVIsIGZyb20gPSAiVVRGLTgiLCB0byA9ICJBU0NJSS8vVFJBTlNMSVQiKQ0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnfQ0KI3NlcGFyYXIgZW4gZG9zIG51ZXZhcyB2YXJpYWJsZXMgbGEgbG9uZ2l0dWQgeSBsYXRpdHVkLCBjb250ZW5pZG9zIGVuIGxhIHZhcmlhYmxlcyBMT0NBVElPTg0KYmFzZTIgPC0gc2VwYXJhdGUoYmFzZTIsTE9DQVRJT04sYygiTE9OR0lUVUQiLCJMQVRJVFVEIiksc2VwPSIsIixjb252ZXJ0PVRSVUUpDQoNCiNxdWl0YW1vcyBlbCAiWyIgZGVsIGRhdG8NCmJhc2UyJExPTkdJVFVEIDwtIHN1YnN0cmluZyhiYXNlMiRMT05HSVRVRCwgZmlyc3QgPSAyKQ0KDQojRWxpbWluYXIgZWwgZXNwYWNpbyBlbnRyZSBsb3MgbnVtZXJvcw0KYmFzZTIkTEFUSVRVRCA8LSBnc3ViKCIgIiwiIiwgYmFzZTIkTEFUSVRVRCkNCg0KI2VsaW1pbmFyIGVsIHVsdGltbyBlbGVtZW50byAiXSINCmJhc2UyJExBVElUVUQgPC0gZ3N1YigiXSIsIiIsIGJhc2UyJExBVElUVUQpIA0KYGBgDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnfQ0KI3Jlbm9tYnJhcmVtb3MgbGFzIHZhcmlhYmxlcw0KYmFzZTIgPC0gcGx5cjo6cmVuYW1lKGJhc2UyLCAgYygiRkVDSEFfQUNDSURFTlRFIj0iRkVDSEEiLCJOT01CUkVfQkFSIj0iQkFSUklPIiwiTk9NQlJFX0NPTSI9IkNPTVVOQSIsIkdSQVZFREFEX0FDQ0lERU5URSI9IkdSQVZFREFEIiwiQ0xBU0VfQUNDSURFTlRFIj0iQ0xBU0UiKSkNCmBgYA0KDQoNCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UgLCBlY2hvPUZBTFNFLCByZXN1bHRzID0gJ2hpZGUnfQ0KI0VKRUNVVEFSIFNPTE8gUEFSQSBDUkVBUiBFTCBDU1YgTlVFVk8NCndyaXRlLmNzdihiYXNlMiwiLi9kYXRvcy9iYXNlX2RlcHVyYWRhLmNzdiIsZmlsZUVuY29kaW5nID0gIlVURi04IikNCmBgYA0KDQojIyBSZWZlcmVuY2lhcw0KPGEgaHJlZj0iaHR0cHM6Ly9nZW9tZWRlbGxpbi1tLW1lZGVsbGluLm9wZW5kYXRhLmFyY2dpcy5jb20vZGF0YXNldHMvTS1NZWRlbGxpbjo6bGltaXRlLWJhcnJpby12ZXJlZGEtY2F0YXN0cmFsL2Fib3V0Ij4gaHR0cHM6Ly9nZW9tZWRlbGxpbi1tLW1lZGVsbGluLm9wZW5kYXRhLmFyY2dpcy5jb20vZGF0YXNldHMvTS1NZWRlbGxpbjo6bGltaXRlLWJhcnJpby12ZXJlZGEtY2F0YXN0cmFsL2Fib3V0IDwvYT4NCjwvYnI+DQoNCg0KDQoNCg0KDQoNCg0KDQo=</div>
 
 
 </div>
@@ -3080,7 +3078,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("Informe.Rmd");
+  window.initializeSourceEmbed("Deyner.Rmd");
   window.initializeCodeFolding("hide" === "show");
 });
 </script>

@@ -31,12 +31,12 @@ Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure 
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 #Lectura de la base de datos
-bd <- read.csv("./datos/incidentes_viales.csv", dec=",", header=T,sep=";", encoding = "UTF-8")
+bd <- read.csv("./datos/incidentes_viales.csv", dec=",", header=T,sep=";")
 ```
 
 ## 1. Datos
 <div style="text-align: justify">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+Los datos fueron obtenidos de la plataforma [medata](http://medata.gov.co/dataset/incidentes-viales), la base de datos cuenta con un total de 270.765 observaciones con 18 variables, datos obtenidos en el periodo comprendido entre el año 2014 y 2020, en la siguiente sección realizamos la limpieza de los datos y organización de los mismos para realizar un análisis descriptivo de estos y posteriormente realizar los agrupamiento solicitados y la predicción de accidentalidad.
 </div>
 
 ```{r message=FALSE, warning=FALSE,echo=FALSE}
@@ -49,15 +49,54 @@ head(bd,n=5)
 bd$FECHA_ACCIDENTE <- as.Date(bd$FECHA_ACCIDENTE, format="%d/%m/%Y")
 ```
 
-### 1.1 Revisión de valores vacios
-<div style="text-align: justify">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
-</div>
-
-```{r message=FALSE, warning=FALSE , echo=FALSE}
+```{r message=FALSE, warning=FALSE , echo=FALSE , results= 'hide'}
 #Revisamos que variables contienen valores vacios
 colSums(is.na(bd)|bd=="")
 ```
+
+<div style="text-align: justify">
+A continuación, se hace la revisión y descripción de cada variable con el fin de encontrar datos inconsistentes, esto se realizo revisando el csv en excel para datos inconsistentes y en R para los datos faltantes.
+
+**AÑO:** año de ocurrencia del incidente. (2014 hasta 2016)
+
+**CBML:** es el código catastral que corresponde al código comuna, barrio, manzana, lote catastral de un predio. En este encontramos 18.156 vacíos y adicionalmente tiene 962 registros con caracteres extraños como: AUC1, AUC2, Inst_14, Inst_16, Inst_18, Inst_19, Sin Inf, SN01, para un total de 19.118 registros mal estructurados o vacíos.
+
+**CLASE_ACCIDENTE:** clasificación del IPAT (Informe Policivo de Accidente de tránsito) sobre la clase de accidente de tránsito, hay 5 tipos de clasificación, choque, atropello, volcamiento, caída de ocupante, incendio y adicional se hay otra clasificación denominada como “otro”. En esta variable encontramos un total de 6 datos vacíos los cuales se cambiarán por “otro”.
+
+**DISEÑO:** esta corresponde al sitio donde ocurrió el accidente (Ciclorruta, Glorieta, Intersección, Lote o Predio, Paso a Nivel, Paso Elevado, Paso Inferior, Pontón, Puente, Tramo de vía, Túnel, Vía peatonal). En esta encontramos 1.148 vacíos los cuales se reemplazarán por “otro”.
+
+**BARRIO:** barrio de ocurrencia del incidente vial, en este encontramos 19.006 vacíos,Además se tienen 1.822 registros adicionales con carácteres como: números entre 0 y 9.086, AUC1, AUC2, Inst, Sin Inf, Sin nombre.
+
+**COMUNA:** denominación con la cual se identifica cada Comuna o Corregimiento, en este encontramos 12.798 vacíos ademas se tienen 7.064 registros adicionales con carácteres como: No Georef, 0, In, AU, Sin Inf, SN.
+
+**NUMCOMUNA:** número de la comuna en la que ocurrió incidente vial, se encontraron 20.116 registros adicionales con caracteres como: AU, In, Sin Inf, SN.
+
+**LOCATION:** fuente de información con la cual se realizó la geo codificación, contiene la latitud y longitud, Posteriormente será separada en dos variables.
+
+**X:**coordenada X en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+**Y:** coordenada Y en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+**NRO_RADICADO:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+**MES:** mes de ocurrencia del incidente vial. Esta variable no se modifica.
+
+**GRAVEDAD_ACCIDENTE:** clasificación del IPAT (Informe Policial de Accidentes de Tránsito) sobre la gravedad del accidente, corresponde al resultado más grave presentado en el accidente. Daños materiales “Sólo daños”, accidente con heridos “Herido”, accidente con muertos “Muerto”,en esta variable se cambia la codificación a UTF-8
+
+**FECHA_ACCIDENTES:** fecha de los accidente (formato YYYY-MM-DD hh:mi:ss), proviene del IPAT (Informe Policial de accidentes de Tránsito)
+
+**FECHA_ACCIDENTE:** fecha del accidente, proviene del IPAT (Informe Policial de accidente de Tránsito) esta variable posteriormente se elimina debido a que proporciona menos información que la variable FECHA_ACCIDENTES.
+
+**EXPEDIENTE:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento. Esta variable posteriormente se elimina.
+
+**DIRECCION ENCASILLADA:** dirección encasillada que entrega el geo codificador. Esta variable se elimina.
+
+**DIRECCION:** dirección donde ocurrió el incidente. Esta variable no se modifica.
+
+**NRO_RADICADO:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+</div>
+
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=FALSE}
 # reemplazamos los datos vacios de la variable CLASE_ACCIDENTE
@@ -74,10 +113,10 @@ bd$CLASE_ACCIDENTE <- iconv(bd$CLASE_ACCIDENTE, from = "UTF-8", to = "ASCII//TRA
 # Cambiar datos vacios de la variable DISENO
 
 #Cambiar datos vacios por "no especificado"
-bd$DISEÑO <- ifelse(bd$DISEÑO == "","otro",bd$DISEÑO)
+bd$DISENO <- ifelse(bd$DISENO == "","otro",bd$DISENO)
 
 #Correccion de tildes
-bd$DISENO <- iconv(bd$DISEÑO, from = "UTF-8",to="ASCII//TRANSLIT") 
+bd$DISENO <- iconv(bd$DISENO, from = "UTF-8",to="ASCII//TRANSLIT") 
 
 ```
 
@@ -86,22 +125,22 @@ bd$DISENO <- iconv(bd$DISEÑO, from = "UTF-8",to="ASCII//TRANSLIT")
 bd$DIA_SEMANA <- format(bd$FECHA_ACCIDENTE, format="%A")
 ```
 
-```{r message=FALSE, warning=FALSE , echo=FALSE}
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #Creamos una nueva variables la cual contiene la hora del accidente
 bd$HORA_ACCIDENTE <- substr(bd$FECHA_ACCIDENTES,start = 12 ,stop = 19)
 ```
 
-### 1.2 Integración de datos Geo-Medellín y depuración.
+### 1.1 Integración de datos Geo-Medellín y depuración.
 <div style="text-align: justify">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+En esta sección hicimos integración entre los datos de nuestra base de datos y los datos encontrados en la plataforma Geo Medellín, esto con el fin de encontrar datos faltantes respecto a barrios, comunas, posteriormente realizaremos la depuración de la base de datos, donde eliminaremos las observaciones con datos faltantes irrecuperables y variables que no sean necesarias para el contexto de nuestro análisis.
 </div>
 
-#### 1.2.1 Integración de datos Geo-Medellín
+#### 1.1.1 Integración de datos Geo-Medellín
 <div style="text-align: justify">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+Para la integración de los datos usamos lo datos contenidos en la pagina web [Geo medellín](https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about), de nuestra base de datos usamos la variable CBML y con los primeros 4 dígitos poder obtener los datos faltantes de barrio y comuna cruzando los datos entre nuestra base de datos y la de geo Medellín.
 </div>
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
+```{r message=FALSE, warning=FALSE, echo=FALSE, results = 'hide'}
 catastro <- rgdal::readOGR(dsn = "./datos/Catastro_gdb.shp", layer = "Catastro_gdb")
 
 
@@ -143,19 +182,24 @@ bd_unif <- bd %>%
 
 ```
 
-```{r message=FALSE, warning=FALSE , echo=FALSE}
+#### 1.1.2 Depuración
+<div style="text-align: justify">
+Luego de hacer la revisión de las variables y eliminar los datos irrecuperables, procedemos a eliminar las variables temporales que creamos y otras variables presentes en la base de datos las cuales consideramos que no son necesarias para realizar el proyecto.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #Eliminacion de variables no necesarias
 
-base2 <- dplyr::select(bd_unif,-X,-Y,-BARRIO,-COMUNA,-DIRECCION.ENCASILLADA,-CBML,-TEMP_CBML,-TEMP2_CBML,-FECHA_ACCIDENTES,-EXPEDIENTE,-DISEÑO)
+base2 <- dplyr::select(bd_unif,-X,-Y,-BARRIO,-COMUNA,-DIRECCION.ENCASILLADA,-CBML,-TEMP_CBML,-TEMP2_CBML,-FECHA_ACCIDENTES,-EXPEDIENTE,-NRO_RADICADO)
 
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #Correccion de tildes
 base2$NOMBRE_BAR <- iconv(base2$NOMBRE_BAR, from = "UTF-8", to = "ASCII//TRANSLIT")
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #separar en dos nuevas variables la longitud y latitud, contenidos en la variables LOCATION
 base2 <- separate(base2,LOCATION,c("LONGITUD","LATITUD"),sep=",",convert=TRUE)
 
@@ -169,13 +213,13 @@ base2$LATITUD <- gsub(" ","", base2$LATITUD)
 base2$LATITUD <- gsub("]","", base2$LATITUD) 
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #renombraremos las variables
 base2 <- plyr::rename(base2,  c("FECHA_ACCIDENTE"="FECHA","NOMBRE_BAR"="BARRIO","NOMBRE_COM"="COMUNA","GRAVEDAD_ACCIDENTE"="GRAVEDAD","CLASE_ACCIDENTE"="CLASE"))
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #EJECUTAR SOLO PARA CREAR EL CSV NUEVO
 #write.csv(base2,"./datos/base_depurada.csv",fileEncoding = "UTF-8")
 ```
