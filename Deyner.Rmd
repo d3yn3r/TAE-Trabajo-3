@@ -218,11 +218,76 @@ base2$LATITUD <- gsub("]","", base2$LATITUD)
 base2 <- plyr::rename(base2,  c("FECHA_ACCIDENTE"="FECHA","NOMBRE_BAR"="BARRIO","NOMBRE_COM"="COMUNA","GRAVEDAD_ACCIDENTE"="GRAVEDAD","CLASE_ACCIDENTE"="CLASE"))
 ```
 
+#### 1.1.3 Días feriados
+
+Para las fechas especiales se crean dos nuevas variables; `FESTIVIDAD` y `TIPO_FESTIVIDAD`. Estas variables provienen de una base de datos externa que se adiciona a la base de análisis y abarca los días feriados en Colombia desde 2014 hasta 2021.
+
+**FESTIVIDAD:** contiene dos etiquetas (SI/NO). SI: cuando hay festividad para ese día. NO: cuando no hay festividad para ese día,  
+
+**TIPO_FESTIVIDAD:** contiene seis tipos de festividad:  
+* FESTIVO: día feriado.  
+* NAVIDAD: 24,25 y 31 de diciembre.  
+* SEM_SANTA: toda la semana santa, desde el lunes hasta el domingo.  
+* BRUJAS: 31 de octubre.  
+* MADRES: el día de madres designado para el año respectivo.  
+* NUEVO: primero de enero de cada año.  
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+fechas_especiales <- read.csv("./datos/dias_festivos.csv", sep = ",", header = T)
+class(fechas_especiales$FECHA)
+fechas_especiales$FECHA <- as.Date(fechas_especiales$FECHA, format="%d/%m/%Y")
+class(fechas_especiales$FECHA)
+```
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#unimos las fechas especiales a la base de datos
+base2 <- merge(x = base2, y = fechas_especiales, by = "FECHA", all.x = T)
+base2$FESTIVIDAD <- ifelse(is.na(base2$FESTIVIDAD),"NO","SI")
+base2$FESTIVIDAD <- as.factor(base2$FESTIVIDAD)
+summary(base2$FESTIVIDAD)
+```
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#agregando semana
+base2 <- mutate(base2, SEMANA=as.factor(week(base2$FECHA)))
+base2$SEMANA <- as.factor(base2$SEMANA)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#Tipo de festividad
+fechas_especiales2 <- read.csv("./datos/dias_festivos_2.csv",
+                       sep = ",", 
+                       header = T)
+
+#convertir a date
+fechas_especiales2$FECHA <- as.Date(fechas_especiales2$FECHA, format="%d/%m/%Y")#año,mes,dia
+
+class(base2$FECHA)
+class(fechas_especiales2$FECHA)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+base2 <- left_join(base2, dplyr::select(fechas_especiales2,FECHA,TIPO_FESTIVIDAD), 
+                  by = c("FECHA" = "FECHA"))
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+base2$TIPO_FESTIVIDAD <- factor(base2$TIPO_FESTIVIDAD, levels = c("A_NUEVO","BRUJAS","FESTIVO","MADRES","NAVIDAD","SEM_SANTA","No_festivo")) 
+base2$TIPO_FESTIVIDAD[is.na(base2$TIPO_FESTIVIDAD)] <- "No_festivo"
+
+
+base2$TIPO_FESTIVIDAD <- as.factor(base2$TIPO_FESTIVIDAD)
+```
+
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
 #EJECUTAR SOLO PARA CREAR EL CSV NUEVO
-#write.csv(base2,"./datos/base_depurada.csv",fileEncoding = "UTF-8")
+write.csv(base2,"./datos/base_depurada.csv",fileEncoding = "UTF-8")
 ```
+
+
+## 2. Análisis descriptivo
+
 
 ## Referencias
 <a href="https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about"> https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about </a>
