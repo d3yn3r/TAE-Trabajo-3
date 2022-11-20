@@ -51,7 +51,7 @@ library(qpcR);
 library(leaflet)
 ```
 
-## 1. Introducción
+## Introducción
 <div style="text-align: justify">
 Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
 </div>
@@ -100,7 +100,7 @@ A continuación, se hace la revisión y descripción de cada variable con el fin
 
 **LOCATION:** fuente de información con la cual se realizó la geo codificación, contiene la latitud y longitud, Posteriormente será separada en dos variables.
 
-**X:**coordenada X en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+**X:** coordenada X en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
 
 **Y:** coordenada Y en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
 
@@ -253,12 +253,12 @@ Para las fechas especiales se crean dos nuevas variables; `FESTIVIDAD` y `TIPO_F
 **FESTIVIDAD:** contiene dos etiquetas (SI/NO). SI: cuando hay festividad para ese día. NO: cuando no hay festividad para ese día,  
 
 **TIPO_FESTIVIDAD:** contiene seis tipos de festividad:  
-* FESTIVO: día feriado.  
-* NAVIDAD: 24,25 y 31 de diciembre.  
-* SEM_SANTA: toda la semana santa, desde el lunes hasta el domingo.  
-* BRUJAS: 31 de octubre.  
-* MADRES: el día de madres designado para el año respectivo.  
-* NUEVO: primero de enero de cada año.  
+**FESTIVO:** día feriado.  
+**NAVIDAD:** 24,25 y 31 de diciembre.  
+**SEM_SANTA:** toda la semana santa, desde el lunes hasta el domingo.  
+**BRUJAS:** 31 de octubre.  
+**MADRES:** el día de madres designado para el año respectivo.  
+**NUEVO:** primero de enero de cada año.  
 </div>
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
@@ -314,20 +314,39 @@ base2$TIPO_FESTIVIDAD <- as.factor(base2$TIPO_FESTIVIDAD)
 ```
 
 
+<div style="text-align: justify">
+Luego de realizar todo el pre procesamiento a la base de datos, podemos observar mediante la siguiente tabla cual fue el resultado final.
+</div>
+
+
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+head(base2,n=5)
+```
+
+</br>
+</br>
+</br>
+</br>
+
+
 ## 2. Análisis descriptivo
 
 <div style="text-align: justify">
 En esta sección realizaremos el análisis descriptivo por las variables que consideramos que representan una descripción de la distribución de los datos a lo largo del periodo contenido, con el fin de ver cuál es el comportamiento de los datos.
-
+</div>
 
 ### 2.1 Accidentes mensuales por Año
 
+<div style="text-align: justify">
 
-```{r}
+</div>
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 bd_final <- base2
 ```
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 
 accidentes_mes_ano <- bd_final %>% group_by(FECHA) %>% 
   dplyr::summarize(numero_de_accidentes = n())
@@ -335,7 +354,7 @@ accidentes_mes_ano$ano <- year(accidentes_mes_ano$FECHA)
 accidentes_mes_ano$mes <- month(accidentes_mes_ano$FECHA)
 ```
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 aggregate(numero_de_accidentes~ano*mes, data = accidentes_mes_ano, FUN = mean) %>%
   plot_ly(x = ~mes,
           y = ~numero_de_accidentes, type = "scatter", mode = "lines+markers",
@@ -348,17 +367,20 @@ aggregate(numero_de_accidentes~ano*mes, data = accidentes_mes_ano, FUN = mean) %
 
 ### 2.2 Accidentes por día de la semana
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+<div style="text-align: justify">
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_semana <- bd_final %>%
   group_by(DIA_SEMANA) %>%
   summarise(numero_de_accidentes = n())
 ```
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_semana$DIA_SEMANA <- ordered(accidentes_semana$DIA_SEMANA, levels = c("lunes","martes","miércoles","jueves","viernes","sábado","domingo"))
 ```
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 grafico_dia_semana <- ggplot(accidentes_semana, aes(fill = DIA_SEMANA, x = DIA_SEMANA, y = numero_de_accidentes)) +
   geom_bar(stat = "identity") +
   geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
@@ -376,13 +398,17 @@ grafico_dia_semana
 
 ### 2.3 Accidentes por mes
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+<div style="text-align: justify">
+
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_mes <- bd_final %>%
   group_by(MES) %>%
   summarise(numero_de_accidentes = n()) 
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_mes$MES <- gsub("1","Enero",accidentes_mes$MES)
 accidentes_mes$MES <- gsub("2","Febrero",accidentes_mes$MES)
 accidentes_mes$MES <- gsub("3","Marzo",accidentes_mes$MES)
@@ -401,7 +427,7 @@ accidentes_mes$MES <- ordered(accidentes_mes$MES, levels = c("Enero","Febrero","
 ```
 
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidentes_mes, aes(fill=MES, x = MES, y = numero_de_accidentes)) + 
     geom_bar(stat = "identity") +
     scale_fill_hue() +
@@ -422,13 +448,16 @@ ggplot(data = accidentes_mes, aes(fill=MES, x = MES, y = numero_de_accidentes)) 
 
 ### 2.4 Accidentes por año
 
+<div style="text-align: justify">
 
-```{r}
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidente_año <- table(bd_final$ANO) %>% 
   as.data.frame()
 ```
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidente_año, aes(fill = Var1, x = Var1, y = Freq)) +
   geom_bar(stat = "identity") +
   geom_text(aes(y = Freq, label = Freq), vjust = -0.5) +
@@ -445,14 +474,17 @@ ggplot(data = accidente_año, aes(fill = Var1, x = Var1, y = Freq)) +
 
 ### 2.5 Accidentes por comuna
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+<div style="text-align: justify">
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_comuna <- bd_final %>%
   group_by(COMUNA) %>% 
   dplyr::summarize(numero_de_accidentes = n())
 ```
 
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidentes_comuna, aes( fill = COMUNA, x = reorder(COMUNA,+numero_de_accidentes), y = numero_de_accidentes)) +
   geom_bar(stat = "identity") +
   scale_fill_viridis_d( option = "C") +
@@ -468,28 +500,36 @@ ggplot(data = accidentes_comuna, aes( fill = COMUNA, x = reorder(COMUNA,+numero_
 
 ### 2.6 Accidentes por gravedad
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+<div style="text-align: justify">
+
+<div/>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_gravedad <- bd_final %>%
   group_by(GRAVEDAD) %>%
   summarise(numero_de_accidentes = n())
 ```
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidentes_gravedad, aes(fill = GRAVEDAD, x = GRAVEDAD, y = numero_de_accidentes)) +
   geom_bar(stat = "identity") +
   geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
   xlab("Gravedad") + 
   ylab("Número de acccidentes") + 
-  ggtitle("Total Accidentes por gravedad") +
+  ggtitle("Número de accidentes por gravedad") +
   ylim(c(0,150000))+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
   
 ```
 
 
-## 2.7 Accidentes por tipo de festividad
+### 2.7 Accidentes por tipo de festividad
 
-```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+<div style="text-align: justify">
+
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_tipo_festividad <- bd_final %>%
   group_by(TIPO_FESTIVIDAD) %>%
   summarise(numero_de_accidentes = n())
@@ -497,7 +537,7 @@ accidentes_tipo_festividad <- bd_final %>%
 accidentes_tipo_festividad <- accidentes_tipo_festividad[c(1,2,3,4,5,6),]
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("A_NUEVO","AÑO NUEVO",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
 accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("SEM_SANTA","SEMANA SANTA",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
 accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("MADRES","DIA DE LAS MADRES",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
@@ -505,13 +545,13 @@ accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("BRUJAS","HALLOWEEN",accident
 ```
 
 
-```{r message=FALSE, warning=FALSE , echo=T}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidentes_tipo_festividad, aes(fill = TIPO_FESTIVIDAD, x = TIPO_FESTIVIDAD, y = numero_de_accidentes)) +
   geom_bar(stat = "identity") +
   geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
   xlab("Tipo de festividad") + 
   ylab("Número de acccidentes") + 
-  ggtitle("Total Accidentes por tipo de festividad") +
+  ggtitle("Número de accidentes por tipo de festividad") +
   ylim(c(0,5000))+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
   
@@ -520,19 +560,19 @@ ggplot(data = accidentes_tipo_festividad, aes(fill = TIPO_FESTIVIDAD, x = TIPO_F
 
 Además de verificar los accidentes por tipo de festividad, también haremos revisión de la distribución de los datos respecto a si el día del accidente era o no festivo.
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 accidentes_festividad <- bd_final %>%
   group_by(FESTIVIDAD) %>%
   summarise(numero_de_accidentes = n())
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE , echo=FALSE}
 ggplot(data = accidentes_festividad, aes(fill = FESTIVIDAD, x = FESTIVIDAD, y = numero_de_accidentes)) +
   geom_bar(stat = "identity") +
   geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
   xlab("Festivo") + 
   ylab("Número de acccidentes") + 
-  ggtitle("Total Accidentes en días feriados") +
+  ggtitle("Número de accidentes en días feriados") +
   ylim(c(0,250000))+
   theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
 ```
@@ -540,8 +580,16 @@ ggplot(data = accidentes_festividad, aes(fill = FESTIVIDAD, x = FESTIVIDAD, y = 
 
 
 ## Referencias
-<a href="https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about"> https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about </a>
+<div style="text-align: justify">
+[Geo-Medellín](https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about)
 </br>
+[Stackoverflow](https://es.stackoverflow.com/)
+</br>
+[Plotly](https://plotly.com/r)
+</br>
+[ggplot2-book.org](https://ggplot2-book.org/scale-colour.html)
+</br>
+</div>
 
 
 
