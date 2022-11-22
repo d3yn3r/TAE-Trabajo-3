@@ -26,30 +26,31 @@ bd_depurada <- read.csv("./datos/base_depurada.csv", dec=".", header=T,sep=",")
 bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
 
 # Division en train y val
-datos_val <- subset(bd_depurada, (ANO == '2019' | ANO == '2020'))
+datos_val_2019 <- subset(bd_depurada, (ANO == '2019'))
+datos_val_2020 <- subset(bd_depurada, (ANO == '2020'))
 base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
 
 ```
 
-### Modelo lineal 1
+## Modelo lineal generalizado
 
-Para este primer modelo, consideraremos unicamente las variables FESTIVIDAD Y DIA_SEMANA para predecir la accidentalidad.
+Como nos interesa predecir el número de accidentes por unidad de tiempo, resulta conveniente utilizar un modelo lineal generalizado con la distribución Poisson. Para este primer modelo, consideraremos unicamente las variables FESTIVIDAD Y DIA_SEMANA para predecir la accidentalidad.
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 #Modelo lineal
 datos_lm1_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, 
                                      DIA_SEMANA) %>% count(name = "NRO_ACCID") 
 
-lm1 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, data = datos_lm1_tr)
-
+# lm1 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, data = datos_lm1_tr)
+lm1 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, family = "poisson", data = datos_lm1_tr)
 ```
 
-### Evaluación datos entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 # Evaluacion modelo 1
 datos_lm1_tr_pred <- datos_lm1_tr[,-c(4)]
-predicted <- round(predict(lm1, newdata=datos_lm1_tr_pred))
+predicted <- round(predict(lm1, newdata=datos_lm1_tr_pred, type="response"))
 actual <- datos_lm1_tr$NRO_ACCID
 lm1_tr_mse <- MSE(predicted, actual) # MSE
 lm1_tr_mae <- MAE(predicted, actual) # MAE
@@ -57,14 +58,14 @@ lm1_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm1_tr_mse, lm1_tr_mae, lm1_tr_r2)
 ```
 
-### Evaluacion datos de validacion
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm1_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, 
+datos_lm1_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
                                         DIA_SEMANA) %>% count(name = "NRO_ACCID")
 
 datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
-predicted <- round(predict(lm1, newdata=datos_lm1_val_pred))
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
 actual <- datos_lm1_val$NRO_ACCID
 lm1_val_mse <- MSE(predicted, actual) # MSE
 lm1_val_mae <- MAE(predicted, actual) # MAE
@@ -86,20 +87,45 @@ mae_vl = lm1_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
 
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val_2020 <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_2020_pred <- datos_lm1_val_2020[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_2020_pred, type="response"))
+actual <- datos_lm1_val_2020$NRO_ACCID
+lm1_val_2020_mse <- MSE(predicted, actual) # MSE
+lm1_val_2020_mae <- MAE(predicted, actual) # MAE
+lm1_val_2020_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_2020_mse, lm1_val_2020_mae, lm1_val_2020_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm1_tr_mae
+mae_vl = lm1_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
 ### Modelo lineal 2 (clase)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm2_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    CLASE) %>% count(name = "NRO_ACCID")
-lm2 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, 
+# lm2 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE,
+#            data = datos_lm2_tr)
+lm2 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson",
            data = datos_lm2_tr)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm2_tr_pred <- datos_lm2_tr[,-c(5)]
-predicted <- round(predict(lm2, newdata=datos_lm2_tr_pred))
+predicted <- round(predict(lm2, newdata=datos_lm2_tr_pred, type="response"))
 actual <- datos_lm2_tr$NRO_ACCID
 lm2_tr_mse <- MSE(predicted, actual) # MSE
 lm2_tr_mae <- MAE(predicted, actual) # MAE
@@ -107,14 +133,38 @@ lm2_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm2_tr_mse, lm2_tr_mae, lm2_tr_r2)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Validaci?n
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm2_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, 
+datos_lm2_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
                                         DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
 
 datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
-predicted <- round(predict(lm2, newdata=datos_lm2_val_pred))
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
+actual <- datos_lm2_val$NRO_ACCID
+lm2_val_mse <- MSE(predicted, actual) # MSE
+lm2_val_mae <- MAE(predicted, actual) # MAE
+lm2_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm2_tr_mae
+mae_vl = lm2_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
+
+datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
 actual <- datos_lm2_val$NRO_ACCID
 lm2_val_mse <- MSE(predicted, actual) # MSE
 lm2_val_mae <- MAE(predicted, actual) # MAE
@@ -135,15 +185,17 @@ print(mae_variation(mae_tr, mae_val))
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm3_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    DISENO) %>% count(name = "NRO_ACCID")
-lm3 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO, 
+# lm3 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO,
+#            data = datos_lm3_tr)
+lm3 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO, family = "poisson",
            data = datos_lm3_tr)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm3_tr_pred <- datos_lm3_tr[,-c(5)]
-predicted <- round(predict(lm3, newdata=datos_lm3_tr_pred))
+predicted <- round(predict(lm3, newdata=datos_lm3_tr_pred, type="response"))
 actual <- datos_lm3_tr$NRO_ACCID
 lm3_tr_mse <- MSE(predicted, actual) # MSE
 lm3_tr_mae <- MAE(predicted, actual) # MAE
@@ -151,14 +203,37 @@ lm3_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm3_tr_mse, lm3_tr_mae, lm3_tr_r2)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Validaci?n
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm3_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, 
+datos_lm3_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
                                         DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
 
 datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
-predicted <- round(predict(lm3, newdata=datos_lm3_val_pred))
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
+actual <- datos_lm3_val$NRO_ACCID
+lm3_val_mse <- MSE(predicted, actual) # MSE
+lm3_val_mae <- MAE(predicted, actual) # MAE
+lm3_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm3_tr_mae
+mae_vl = lm3_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
+
+datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
 actual <- datos_lm3_val$NRO_ACCID
 lm3_val_mse <- MSE(predicted, actual) # MSE
 lm3_val_mae <- MAE(predicted, actual) # MAE
@@ -179,15 +254,17 @@ print(mae_variation(mae_tr, mae_val))
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm4_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    GRAVEDAD) %>% count(name = "NRO_ACCID")
-lm4 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+GRAVEDAD, 
+# lm4 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+GRAVEDAD,
+#            data = datos_lm4_tr)
+lm4 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+GRAVEDAD, family = "poisson",
            data = datos_lm4_tr)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm4_tr_pred <- datos_lm4_tr[,-c(5)]
-predicted <- round(predict(lm4, newdata=datos_lm4_tr_pred))
+predicted <- round(predict(lm4, newdata=datos_lm4_tr_pred, type="response"))
 actual <- datos_lm4_tr$NRO_ACCID
 lm4_tr_mse <- MSE(predicted, actual) # MSE
 lm4_tr_mae <- MAE(predicted, actual) # MAE
@@ -195,14 +272,37 @@ lm4_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm4_tr_mse, lm4_tr_mae, lm4_tr_r2)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Validaci?n
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm4_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, 
+datos_lm4_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
                                         DIA_SEMANA, GRAVEDAD) %>% count(name = "NRO_ACCID")
 
 datos_lm4_val_pred <- datos_lm4_val[,-c(5)]
-predicted <- round(predict(lm4, newdata=datos_lm4_val_pred))
+predicted <- round(predict(lm4, newdata=datos_lm4_val_pred, type="response"))
+actual <- datos_lm4_val$NRO_ACCID
+lm4_val_mse <- MSE(predicted, actual) # MSE
+lm4_val_mae <- MAE(predicted, actual) # MAE
+lm4_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm4_val_mse, lm4_val_mae, lm4_val_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm4_tr_mae
+mae_vl = lm4_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm4_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, GRAVEDAD) %>% count(name = "NRO_ACCID")
+
+datos_lm4_val_pred <- datos_lm4_val[,-c(5)]
+predicted <- round(predict(lm4, newdata=datos_lm4_val_pred, type="response"))
 actual <- datos_lm4_val$NRO_ACCID
 lm4_val_mse <- MSE(predicted, actual) # MSE
 lm4_val_mae <- MAE(predicted, actual) # MAE
@@ -223,15 +323,17 @@ print(mae_variation(mae_tr, mae_val))
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm5_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    COMUNA) %>% count(name = "NRO_ACCID")
-lm5 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA, 
+# lm5 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA,
+#            data = datos_lm5_tr)
+lm5 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA, family = "poisson",
            data = datos_lm5_tr)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm5_tr_pred <- datos_lm5_tr[,-c(5)]
-predicted <- round(predict(lm5, newdata=datos_lm5_tr_pred))
+predicted <- round(predict(lm5, newdata=datos_lm5_tr_pred, type="response"))
 actual <- datos_lm5_tr$NRO_ACCID
 lm5_tr_mse <- MSE(predicted, actual) # MSE
 lm5_tr_mae <- MAE(predicted, actual) # MAE
@@ -239,14 +341,37 @@ lm5_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm5_tr_mse, lm5_tr_mae, lm5_tr_r2)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Validaci?n
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm5_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, 
+datos_lm5_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
                                         DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
 
 datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
-predicted <- round(predict(lm5, newdata=datos_lm5_val_pred))
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
+actual <- datos_lm5_val$NRO_ACCID
+lm5_val_mse <- MSE(predicted, actual) # MSE
+lm5_val_mae <- MAE(predicted, actual) # MAE
+lm5_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_val_mse, lm5_val_mae, lm5_val_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm5_tr_mae
+mae_vl = lm5_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
 actual <- datos_lm5_val$NRO_ACCID
 lm5_val_mse <- MSE(predicted, actual) # MSE
 lm5_val_mae <- MAE(predicted, actual) # MAE
@@ -267,15 +392,17 @@ print(mae_variation(mae_tr, mae_val))
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm6_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    CLASE, COMUNA) %>% count(name = "NRO_ACCID")
-lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA, 
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA, family = "poisson",
            data = datos_lm6_tr)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+### Predicción y Evaluación para los datos de Entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm6_tr_pred <- datos_lm6_tr[,-c(6)]
-predicted <- round(predict(lm6, newdata=datos_lm6_tr_pred))
+predicted <- round(predict(lm6, newdata=datos_lm6_tr_pred, type="response"))
 actual <- datos_lm6_tr$NRO_ACCID
 lm6_tr_mse <- MSE(predicted, actual) # MSE
 lm6_tr_mae <- MAE(predicted, actual) # MAE
@@ -283,14 +410,37 @@ lm6_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_mse, lm6_tr_mae, lm6_tr_r2)
 ```
 
-### Predicci?n y Evaluaci?n para los datos de Validaci?n
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm6_val <- datos_val %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+datos_lm6_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                         CLASE, COMUNA) %>% count(name = "NRO_ACCID")
 
 datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
-predicted <- round(predict(lm6, newdata=datos_lm6_val_pred))
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
+actual <- datos_lm6_val$NRO_ACCID
+lm6_val_mse <- MSE(predicted, actual) # MSE
+lm6_val_mae <- MAE(predicted, actual) # MAE
+lm6_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mse, lm6_val_mae, lm6_val_r2)
+```
+
+### Variacion entre train y val
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mae
+mae_vl = lm6_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
 actual <- datos_lm6_val$NRO_ACCID
 lm6_val_mse <- MSE(predicted, actual) # MSE
 lm6_val_mae <- MAE(predicted, actual) # MAE
