@@ -372,7 +372,107 @@ pre code {
 
 <div id="entrenamiento-de-un-modelo-predictivo" class="section level2">
 <h2>Entrenamiento de un modelo predictivo</h2>
-<pre><code>## [1] &quot;MSE: 154.897141, MAE: 7.154657, R2: 0.827410&quot;</code></pre>
+<p>En esta sección. construiremos y validaremos un modelo que permita
+predecir la accidentalidad por tipo de accidente a nivel semanal,
+mensual y diario. Para esto se considerararan fechas especiales.</p>
+<p>Los modelos predictivos que veremos se construiran con los datos de
+los años 2014, 2015, 2016, 2017 y 2018; esta será la base para
+entrenamiento. Los accidentes del año 2019 y 2020 se usaran para validar
+los modelos.</p>
+<p>El criterio de éxito de los modelos predictivos será el MAE de la
+predicción.</p>
+<div id="modelo-lineal-1" class="section level3">
+<h3>Modelo lineal 1</h3>
+<p>Para este primer modelo, consideraremos unicamente las variables
+FESTIVIDAD Y DIA_SEMANA para predecir la accidentalidad.</p>
+</div>
+<div id="evaluación-datos-entrenamiento" class="section level3">
+<h3>Evaluación datos entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 374.314860, MAE: 14.624239, R2: 0.476393&quot;</code></pre>
+</div>
+<div id="evaluacion-datos-de-validacion" class="section level3">
+<h3>Evaluacion datos de validacion</h3>
+<pre><code>## [1] &quot;MSE: 1558.228243, MAE: 29.522167, R2: 0.017636&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 101.8715</code></pre>
+</div>
+<div id="modelo-lineal-2-clase" class="section level3">
+<h3>Modelo lineal 2 (clase)</h3>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-entrenamiento" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 90.944785, MAE: 6.145276, R2: 0.896109&quot;</code></pre>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-validacin" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Validaci?n</h3>
+<pre><code>## [1] &quot;MSE: 208.186170, MAE: 8.279920, R2: 0.709119&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val-1" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 34.73634</code></pre>
+</div>
+<div id="modelo-lineal-3-diseno" class="section level3">
+<h3>Modelo lineal 3 (diseno)</h3>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-entrenamiento-1" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 111.682724, MAE: 6.388594, R2: 0.889266&quot;</code></pre>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-validacin-1" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Validaci?n</h3>
+<pre><code>## [1] &quot;MSE: 243.717134, MAE: 8.730218, R2: 0.580455&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val-2" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 36.65321</code></pre>
+</div>
+</div>
+<div id="modelo-4-gravedad" class="section level2">
+<h2>Modelo 4 (gravedad)</h2>
+<div id="prediccin-y-evaluacin-para-los-datos-de-entrenamiento-2" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 131.129310, MAE: 8.877789, R2: 0.799093&quot;</code></pre>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-validacin-2" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Validaci?n</h3>
+<pre><code>## [1] &quot;MSE: 378.352941, MAE: 14.762630, R2: 0.461216&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val-3" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 66.28723</code></pre>
+</div>
+</div>
+<div id="modelo-5-comuna" class="section level2">
+<h2>Modelo 5 (comuna)</h2>
+<div id="prediccin-y-evaluacin-para-los-datos-de-entrenamiento-3" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 11.730851, MAE: 2.367739, R2: 0.726024&quot;</code></pre>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-validacin-3" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Validaci?n</h3>
+<pre><code>## [1] &quot;MSE: 17.121631, MAE: 2.804774, R2: 0.545206&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val-4" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 18.45788</code></pre>
+</div>
+</div>
+<div id="modelo-6-comuna-clase" class="section level2">
+<h2>Modelo 6 (comuna, clase)</h2>
+<div id="prediccin-y-evaluacin-para-los-datos-de-entrenamiento-4" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 7.921472, MAE: 1.890176, R2: 0.435636&quot;</code></pre>
+</div>
+<div id="prediccin-y-evaluacin-para-los-datos-de-validacin-4" class="section level3">
+<h3>Predicci?n y Evaluaci?n para los datos de Validaci?n</h3>
+<pre><code>## [1] &quot;MSE: 7.562616, MAE: 1.900917, R2: 0.362616&quot;</code></pre>
+</div>
+<div id="variacion-entre-train-y-val-5" class="section level3">
+<h3>Variacion entre train y val</h3>
+<pre><code>## [1] 0.5682618</code></pre>
+</div>
 </div>
 
 
