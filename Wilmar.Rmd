@@ -47,8 +47,6 @@ lm1 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, family = "poisson", data = datos_l
 
 ### Predicción y Evaluación para los datos de Entrenamiento
 
-Para los datos de entrenamiento, se obtiene un MAE de 14.509135, y un R2 de 0.485746.
-
 ```{r message=FALSE, warning=FALSE, echo=F}
 # Evaluacion modelo 1
 datos_lm1_tr_pred <- datos_lm1_tr[,-c(4)]
@@ -60,9 +58,9 @@ lm1_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm1_tr_mse, lm1_tr_mae, lm1_tr_r2)
 ```
 
-### Predicción y Evaluación para los datos de Validación en el año 2019
+Para los datos de entrenamiento, se obtiene un MAE de `r lm1_tr_mae`, y un R2 de `r lm1_tr_r2`.
 
-Para los datos de validación del año 2019, se obtiene un MAE de 17.438356, y un R2 de 0.433695.
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm1_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
@@ -77,9 +75,9 @@ lm1_val_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
 ```
 
-### Variacion entre train y val (2019)
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`.
 
-La variación entre el MAE de entrenamiento y validación es de 20.1888 %, lo cual indica un posible sobreentrenamiento. Además, el R2 es relativamente bajo, cercano al 50%. Veamos que pasa para el año 2020.
+### Variacion entre train y val (2019)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_variation = function(mae_tr, mae_val){
@@ -93,9 +91,24 @@ mae_vl = lm1_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
 
+La variación entre el MAE de entrenamiento y validación es de 20.1888 %, lo cual indica un posible sobreentrenamiento. Además, el R2 es relativamente bajo, cercano al 50%. Veamos que pasa para el año 2020.
+
 ### Predicción y Evaluación para los datos de Validación en el año 2020
 
-Para los datos de validación del año 2020, se obtiene un MAE de 47.422131, y un R2 de -1.17278. Este MAE tan alto y este R2 negativo indican que el modelo se ajusta muy pobremente a los datos del año 2020. 
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
+actual <- datos_lm1_val$NRO_ACCID
+lm1_val_mse <- MSE(predicted, actual) # MSE
+lm1_val_mae <- MAE(predicted, actual) # MAE
+lm1_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`. Este MAE tan alto y este R2 negativo indican que el modelo se ajusta muy pobremente a los datos del año 2020. 
 
 Sin embargo, tal como veremos a continuación, ningún modelo se ajusta bien al año 2020. Esto se puede explicar por dos posibles razones:
 
@@ -104,28 +117,15 @@ Sin embargo, tal como veremos a continuación, ningún modelo se ajusta bien al 
 
 Por tanto, el año 2020 no nos será muy útil para validar los modelos, ya que el comportamiento de este año es muy diferente a los demás años con los que se entrenó el modelo.
 
-```{r message=FALSE, warning=FALSE, echo=F}
-datos_lm1_val_2020 <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
-                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
-
-datos_lm1_val_2020_pred <- datos_lm1_val_2020[,-c(4)]
-predicted <- round(predict(lm1, newdata=datos_lm1_val_2020_pred, type="response"))
-actual <- datos_lm1_val_2020$NRO_ACCID
-lm1_val_2020_mse <- MSE(predicted, actual) # MSE
-lm1_val_2020_mae <- MAE(predicted, actual) # MAE
-lm1_val_2020_r2 <- R2_Score(predicted, actual) # R2
-sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_2020_mse, lm1_val_2020_mae, lm1_val_2020_r2)
-```
-
 ### Variacion entre train y val (2020)
-
-La variación entre el MAE de entrenamiento y validación es de 226.8433 %.
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_tr = lm1_tr_mae
 mae_vl = lm1_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
+
+La variación entre el MAE de entrenamiento y validación es de 226.8433 %.
 
 ### Modelo 2: modelo lineal generalizado, usando la variable clase
 
@@ -142,8 +142,6 @@ lm2 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson",
 
 ### Predicción y Evaluación para los datos de Entrenamiento
 
-Para los datos de entrenamiento, se obtiene un MAE de 4.747485, y un R2 de 0.933371.
-
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm2_tr_pred <- datos_lm2_tr[,-c(5)]
 predicted <- round(predict(lm2, newdata=datos_lm2_tr_pred, type="response"))
@@ -154,9 +152,9 @@ lm2_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm2_tr_mse, lm2_tr_mae, lm2_tr_r2)
 ```
 
-### Predicción y Evaluación para los datos de Validación en el año 2019
+Para los datos de entrenamiento, se obtiene un MAE de `r lm2_tr_mae`, y un R2 de `r lm2_tr_r2`.
 
-Para los datos de validación del año 2019, se obtiene un MAE de 5.048847, y un R2 de 0.926052. Estos valores son mucho mejores que los obtenidos con el modelo anterior.
+### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm2_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
@@ -171,9 +169,9 @@ lm2_val_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
 ```
 
-### Variacion entre train y val (2019)
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. Estos valores son mucho mejores que los obtenidos con el modelo anterior.
 
-La variación entre el MAE de entrenamiento y validación es de 6.347841 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue muy bueno tanto en entrenamiento como en validacion, superior al 90%. Este modelo es un muy buen candidato para ser utilizado en las predicciones futuras.
+### Variacion entre train y val (2019)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_tr = lm2_tr_mae
@@ -181,9 +179,9 @@ mae_vl = lm2_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
 
-### Predicción y Evaluación para los datos de Validación en el año 2020
+La variación entre el MAE de entrenamiento y validación es de 6.347841 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue muy bueno tanto en entrenamiento como en validacion, superior al 90%. Este modelo es un muy buen candidato para ser utilizado en las predicciones futuras.
 
-Para los datos de validación del año 2020, se obtiene un MAE de 10.497470, y un R2 de 0.116423. El modelo se ajusta ligeramente mejor a los datos de 2020 respecto al caso anterior, pero sigue siendo muy inadecuado para predecir la accidentalidad de este año. Tal como se explicó anteriormente, no es adecuado validar el modelo con estos datos.
+### Predicción y Evaluación para los datos de Validación en el año 2020
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm2_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
@@ -198,9 +196,9 @@ lm2_val_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
 ```
 
-### Variacion entre train y val (2020)
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. El modelo se ajusta ligeramente mejor a los datos de 2020 respecto al caso anterior, pero sigue siendo muy inadecuado para predecir la accidentalidad de este año. Tal como se explicó anteriormente, no es adecuado validar el modelo con estos datos.
 
-La variación entre el MAE de entrenamiento y validación es de 121.1165 %.
+### Variacion entre train y val (2020)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_tr = lm2_tr_mae
@@ -208,7 +206,11 @@ mae_vl = lm2_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
 
-### Modelo lineal 3 (diseno)
+La variación entre el MAE de entrenamiento y validación es de 121.1165 %.
+
+### Modelo 3: modelo lineal generalizado, usando la variable diseño
+
+El modelo 2 tuvo un muy buen desempeño. Aun así, sería interesante probar modelos utilizando otras variables. Para este caso usaremos las variables Festividad, Día Semana y Diseño.
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 datos_lm3_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
@@ -231,6 +233,8 @@ lm3_tr_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm3_tr_mse, lm3_tr_mae, lm3_tr_r2)
 ```
 
+Para los datos de entrenamiento, se obtiene un MAE de `r lm3_tr_mae`, y un R2 de `r lm3_tr_r2`.
+
 ### Predicción y Evaluación para los datos de Validación en el año 2019
 
 ```{r message=FALSE, warning=FALSE, echo=F}
@@ -246,13 +250,17 @@ lm3_val_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
 ```
 
-### Variacion entre train y val
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`. 
+
+### Variacion entre train y val (2019)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_tr = lm3_tr_mae
 mae_vl = lm3_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
+
+La variación entre el MAE de entrenamiento y validación fue de 10.01639 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue bastante bueno tanto en entrenamiento como en validacion, cercano al 90%, pero inferior al del modelo 2. Además, el MAE tambien fue superior que el del modelo 2. Por tanto, descartamos este modelo.
 
 ### Predicción y Evaluación para los datos de Validación en el año 2020
 
@@ -269,13 +277,17 @@ lm3_val_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
 ```
 
-### Variacion entre train y val
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`.
+
+### Variacion entre train y val (2020)
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 mae_tr = lm3_tr_mae
 mae_vl = lm3_val_mae
 print(mae_variation(mae_tr, mae_val))
 ```
+
+La variación entre el MAE de entrenamiento y validación es de 127.1107 %.
 
 ## Modelo 4 (gravedad)
 
