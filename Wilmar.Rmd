@@ -19,14 +19,14 @@ library(MLmetrics)
 bd_depurada <- read.csv("./datos/base_depurada.csv", dec=".", header=T,sep=",")
 ```
 
+### Modelo lineal
+
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 #Modelo lineal
 bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
 datos_val <- subset(bd_depurada, (ANO == '2019' | ANO == '2020'))
 
-base_train <- subset(bd_depurada, (ANO != '2017' & ANO != '2019' & ANO != '2020'))
-#base_final02 <- subset(base_final01, (ANO != '2019'))
-#base_final03 <- subset(base_final02, (ANO != '2020'))
+base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
 datos_lm1 <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
                                    DISENO) %>% count(name = "NRO_ACCID") 
 lm1 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO, data = datos_lm1)
@@ -38,6 +38,7 @@ RSS2 <- anova(lm1)[4, 2]
 r2 <- 1-RSS/TSS
 ```
 
+### Evaluación datos entrenamiento
 
 ```{r message=FALSE, warning=FALSE, echo=F}
 lm1_data <- bd_depurada %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
@@ -50,3 +51,54 @@ lm1_mae <- MAE(predicted, actual) # MAE
 lm1_r2 <- R2_Score(predicted, actual) # R2
 sprintf("MSE: %f, MAE: %f, R2: %f", lm1_mse, lm1_mae, lm1_r2)
 ```
+
+```{r}
+summary(lm1)
+```
+
+### Modelo lineal 2
+
+```{r}
+datos_lm2 <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   COMUNA) %>% count(name = "NRO_ACCID")
+lm2 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA, 
+           data = datos_lm2)
+
+summary(lm2)
+```
+
+### Predicci?n y Evaluaci?n para los datos de Entrenamiento
+
+```{r}
+datos_lm2_p <- datos_lm2[,-5]
+y_train <- round(predict(lm2, newdata= datos_lm2_p, type="response"))
+y_actual <- datos_lm2$NRO_ACCID
+lm2_tmse <- MSE(y_train, y_actual)
+lm2_tmae <-  MAE(y_train, y_actual)
+lm2_r2 <- R2_Score(y_train, y_actual)
+sprintf("MSE: %f, MAE: %f, R2 Score: %f", 
+        lm2_tmse, lm2_tmae, lm2_r2)
+```
+
+### Predicci?n y Evaluaci?n para los datos de Validaci?n
+
+```{r}
+datos_lm2_v1 <- datos_val %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                      COMUNA) %>% count(name = "NRO_ACCID")
+datos_lm2_v2 <- datos_lm2_v1[,-5]
+y_train <- round(predict(lm2, newdata= datos_lm2_v2, type="response"))
+y_actual <- datos_lm2_v1$NRO_ACCID
+lm2_tmse <- MSE(y_train, y_actual)
+lm2_vmae <-  MAE(y_train, y_actual)
+lm2_r2 <- R2_Score(y_train, y_actual)
+sprintf("MSE: %f, MAE: %f, R2 Score: %f", lm2_tmse, lm2_vmae, lm2_r2)
+```
+
+```{r}
+mae_tr = lm2_tmae
+mae_vl = lm2_vmae
+variacion = mae_tr - mae_vl
+porcentaje = variacion / mae_tr
+porcentaje * 100
+```
+
