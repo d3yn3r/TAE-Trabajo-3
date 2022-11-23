@@ -37,7 +37,7 @@ lista_def=[]
 date = '06 02 2019'
 lista_de_listas=[]
 semana=1
-header=['FECHA','ANO','CLASE','COMUNA','DIA_SEMANA','SEMANA','MES','FESTIVIDAD']
+header=['FECHA','ANO','CLASE','DIA_SEMANA','SEMANA','MES','FESTIVIDAD']
 while(True):
     for i in clase:
             if mes < 10:
