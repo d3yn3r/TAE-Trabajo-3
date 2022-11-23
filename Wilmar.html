@@ -382,6 +382,10 @@ los modelos.</p>
 <p>El criterio de éxito de los modelos predictivos será el MAE de la
 predicción.</p>
 </div>
+<div id="diaria" class="section level1">
+<h1>Diaria</h1>
+<p>Empezaremos por buscar el mejor modelo para realizar las predicciones
+diarias.</p>
 <div id="modelo-1-modelo-lineal-generalizado-inicial" class="section level2">
 <h2>Modelo 1: modelo lineal generalizado inicial</h2>
 <p>Como nos interesa predecir el número de accidentes por unidad de
@@ -595,13 +599,13 @@ R2 de 0.7116275.</p>
 <div id="comparación-entre-las-métricas-de-entrenamiento-y-validación-2019-4" class="section level3">
 <h3>Comparación entre las métricas de entrenamiento y validación
 (2019)</h3>
+<pre><code>## [1] -0.7530888</code></pre>
 <p>La variación entre el MAE de entrenamiento y validación fue mínima,
 de tan solo -0.75 %; este dato nos ayuda a estar muy seguros de que no
 hay sobreentrenamiento. Con este modelo tambien conseguimos el MAE más
 pequeño de todos, cercano a 1, y el R2 cuadrado sigue siendo bueno,
 superior al 70%. Por tanto, concluimos que este es el mejor modelo para
 predecir, según nuestro criterio de éxito.</p>
-<pre><code>## [1] -0.7530888</code></pre>
 </div>
 <div id="predicción-y-evaluación-para-los-datos-de-validación-en-el-año-2020-4" class="section level3">
 <h3>Predicción y Evaluación para los datos de Validación en el año
@@ -616,6 +620,110 @@ predecir, según nuestro criterio de éxito.</p>
 <pre><code>## [1] 16.3796</code></pre>
 <p>La variación entre el MAE de entrenamiento y validación fue de
 16.3796 %.</p>
+</div>
+</div>
+</div>
+<div id="semanal" class="section level1">
+<h1>Semanal</h1>
+<p>Una vez tenemos determinado el mejor modelo (5) para las predicciones
+diarias, podemos pasar a evaluarlo semanalmente para validar su
+eficiencia en plazos semanales.</p>
+<div id="modelo-seleccionado-modelo-lineal-generalizado-usando-las-variables-clase-y-comuna" class="section level2">
+<h2>Modelo seleccionado: modelo lineal generalizado, usando las
+variables clase y comuna</h2>
+<p>Veamos como se comporta este modelo para predecir la accidentalidad
+semanalmente. En este caso, las variables a utilizar seran FESTIVIDAD,
+SEMANA, CLASE y COMUNA.</p>
+<div id="predicción-y-evaluación-para-los-datos-de-entrenamiento-5" class="section level3">
+<h3>Predicción y Evaluación para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 4.617367, MAE: 1.210929, R2: 0.671036&quot;</code></pre>
+<p>Para los datos de entrenamiento, se obtiene un MAE de 1.2109293, y un
+R2 de 0.6710363.</p>
+</div>
+<div id="predicción-y-evaluación-para-los-datos-de-validación-en-el-año-2019-5" class="section level3">
+<h3>Predicción y Evaluación para los datos de Validación en el año
+2019</h3>
+<pre><code>## [1] &quot;MSE: 4.674386, MAE: 1.196665, R2: 0.673394&quot;</code></pre>
+<p>Para los datos de validación del año 2019, se obtiene un MAE de
+1.1966649, y un R2 de 0.6733937.</p>
+</div>
+<div id="comparación-entre-las-métricas-de-entrenamiento-y-validación-2019-5" class="section level3">
+<h3>Comparación entre las métricas de entrenamiento y validación
+(2019)</h3>
+<pre><code>## [1] -1.177976</code></pre>
+<p>La variación entre el MAE de entrenamiento y validación fue muy
+pequeña, de tan solo -1.177976 %; este dato nos ayuda a estar muy
+seguros de que no hay sobreentrenamiento. Con este modelo tambien
+conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no
+disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto,
+concluimos que este modelo sigue siendo adecuado para realizar
+predicciones a nivel semanal, según nuestro criterio de éxito.</p>
+</div>
+<div id="predicción-y-evaluación-para-los-datos-de-validación-en-el-año-2020-5" class="section level3">
+<h3>Predicción y Evaluación para los datos de Validación en el año
+2020</h3>
+<pre><code>## [1] &quot;MSE: 5.290364, MAE: 1.363336, R2: 0.242350&quot;</code></pre>
+<p>Para los datos de validación del año 2020, se obtiene un MAE de
+1.3633359, y un R2 de 0.2423501.</p>
+</div>
+<div id="comparación-entre-las-métricas-de-entrenamiento-y-validación-2020-5" class="section level3">
+<h3>Comparación entre las métricas de entrenamiento y validación
+(2020)</h3>
+<pre><code>## [1] 12.58592</code></pre>
+<p>La variación entre el MAE de entrenamiento y validación fue de
+12.58592 %.</p>
+</div>
+</div>
+</div>
+<div id="mensual" class="section level1">
+<h1>Mensual</h1>
+<p>Finalmente, evaluaremos el modelo 5 de manera mensual, para validar
+su eficacia en este caso.</p>
+<div id="modelo-seleccionado-modelo-lineal-generalizado-usando-las-variables-clase-y-comuna-1" class="section level2">
+<h2>Modelo seleccionado: modelo lineal generalizado, usando las
+variables clase y comuna</h2>
+<p>Veamos como se comporta este modelo para predecir la accidentalidad
+mensualmente. Las variables a utilizar son FESTIVIDAD, MES, CLASE y
+COMUNA.</p>
+<div id="predicción-y-evaluación-para-los-datos-de-entrenamiento-6" class="section level3">
+<h3>Predicción y Evaluación para los datos de Entrenamiento</h3>
+<pre><code>## [1] &quot;MSE: 4.627134, MAE: 1.211572, R2: 0.670330&quot;</code></pre>
+<p>Para los datos de entrenamiento, se obtiene un MAE de 1.2115717, y un
+R2 de 0.6703301.</p>
+</div>
+<div id="predicción-y-evaluación-para-los-datos-de-validación-en-el-año-2019-6" class="section level3">
+<h3>Predicción y Evaluación para los datos de Validación en el año
+2019</h3>
+<pre><code>## [1] &quot;MSE: 4.678369, MAE: 1.196327, R2: 0.673115&quot;</code></pre>
+<p>Para los datos de validación del año 2019, se obtiene un MAE de
+1.1963273, y un R2 de 0.6731154.</p>
+</div>
+<div id="comparación-entre-las-métricas-de-entrenamiento-y-validación-2019-6" class="section level3">
+<h3>Comparación entre las métricas de entrenamiento y validación
+(2019)</h3>
+<pre><code>## [1] -1.258233</code></pre>
+<p>La variación entre el MAE de entrenamiento y validación fue muy
+pequeña, de tan solo -1.258233 %; este dato nos ayuda a estar muy
+seguros de que no hay sobreentrenamiento. Con este modelo tambien
+conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no
+disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto,
+concluimos que este modelo sigue siendo adecuado para realizar
+predicciones a nivel semanal, según nuestro criterio de éxito.</p>
+</div>
+<div id="predicción-y-evaluación-para-los-datos-de-validación-en-el-año-2020-6" class="section level3">
+<h3>Predicción y Evaluación para los datos de Validación en el año
+2020</h3>
+<pre><code>## [1] &quot;MSE: 5.281210, MAE: 1.361556, R2: 0.243661&quot;</code></pre>
+<p>Para los datos de validación del año 2020, se obtiene un MAE de
+1.3615561, y un R2 de 0.243661.</p>
+</div>
+<div id="comparación-entre-las-métricas-de-entrenamiento-y-validación-2020-6" class="section level3">
+<h3>Comparación entre las métricas de entrenamiento y validación
+(2020)</h3>
+<pre><code>## [1] 12.37932</code></pre>
+<p>La variación entre el MAE de entrenamiento y validación fue de
+12.37932 %.</p>
+</div>
 </div>
 </div>
 
