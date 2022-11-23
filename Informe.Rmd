@@ -1,0 +1,1378 @@
+---
+title: "Accidentalidad en medellín periodo de 2014 a 2020 y predicción de accidentalidad para los años 2021 y 2022."
+date: "23/11/2022"
+output: 
+  html_document:
+    theme: spacelab
+    code_folding: hide
+    code_download: yes
+    df_print: paged
+    toc: true
+    toc_float: 
+      colapse: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Librerias
+
+library(stringr) 
+library(dplyr) 
+library(rgdal) 
+library(tidyverse) 
+library(kableExtra) 
+library(lubridate)
+library(ggplot2) 
+library(plotly) 
+library(ggpubr)
+library(dummies)
+library(readxl)
+library(sf)
+library(GGally)
+library(car)
+library(MLmetrics)
+library(wordcloud)
+library(gplots)
+library(R.utils)
+library(tm)
+library(DescTools)
+library(raster)
+library(mclust)
+library(geosphere)
+library(NbClust)
+library(factoextra)
+library(vegan)
+library(qpcR)
+library(leaflet)
+```
+
+**- Daniel torres aguirre**
+</br>
+**- Deyner elías López Pineda** 
+</br>
+**- Wilmar Andrés García Bedoya** 
+</br>
+**- Andres Camilo Garcia Moreno**
+</br>
+**- Amilder Stewin Ospina Tobón**
+</br>
+
+
+## Introducción
+<div style="text-align: justify">
+Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+</div>
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+#Lectura de la base de datos
+bd <- read.csv("./datos/incidentes_viales.csv", dec=",", header=T,sep=";")
+```
+
+## 1. Datos
+<div style="text-align: justify">
+Los datos fueron obtenidos de la plataforma [medata](http://medata.gov.co/dataset/incidentes-viales), la base de datos cuenta con un total de 270.765 observaciones con 18 variables, datos obtenidos en el periodo comprendido entre el año 2014 y 2020, en la siguiente sección realizamos la limpieza de los datos y organización de los mismos para realizar un análisis descriptivo de estos y posteriormente realizar los agrupamiento solicitados y la predicción de accidentalidad.
+</div>
+
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+#Mostramos las primeras 5 observaciones de la base de datos
+head(bd,n=5)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Se cambia el formata de la fecha del accidente
+bd$FECHA_ACCIDENTE <- as.Date(bd$FECHA_ACCIDENTE, format="%d/%m/%Y")
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE , results= 'hide'}
+#Revisamos que variables contienen valores vacios
+colSums(is.na(bd)|bd=="")
+```
+
+<div style="text-align: justify">
+A continuación, se hace la revisión y descripción de cada variable con el fin de encontrar datos inconsistentes, esto se realizo revisando el csv en excel para datos inconsistentes y en R para los datos faltantes.
+
+**AÑO:** año de ocurrencia del incidente. (2014 hasta 2016)
+
+**CBML:** es el código catastral que corresponde al código comuna, barrio, manzana, lote catastral de un predio. En este encontramos 18.156 vacíos y adicionalmente tiene 962 registros con caracteres extraños como: AUC1, AUC2, Inst_14, Inst_16, Inst_18, Inst_19, Sin Inf, SN01, para un total de 19.118 registros mal estructurados o vacíos.
+
+**CLASE_ACCIDENTE:** clasificación del IPAT (Informe Policivo de Accidente de tránsito) sobre la clase de accidente de tránsito, hay 5 tipos de clasificación, choque, atropello, volcamiento, caída de ocupante, incendio y adicional se hay otra clasificación denominada como “otro”. En esta variable encontramos un total de 6 datos vacíos los cuales se cambiarán por “otro”.
+
+**DISEÑO:** esta corresponde al sitio donde ocurrió el accidente (Ciclorruta, Glorieta, Intersección, Lote o Predio, Paso a Nivel, Paso Elevado, Paso Inferior, Pontón, Puente, Tramo de vía, Túnel, Vía peatonal). En esta encontramos 1.148 vacíos los cuales se reemplazarán por “otro”.
+
+**BARRIO:** barrio de ocurrencia del incidente vial, en este encontramos 19.006 vacíos,Además se tienen 1.822 registros adicionales con carácteres como: números entre 0 y 9.086, AUC1, AUC2, Inst, Sin Inf, Sin nombre.
+
+**COMUNA:** denominación con la cual se identifica cada Comuna o Corregimiento, en este encontramos 12.798 vacíos ademas se tienen 7.064 registros adicionales con carácteres como: No Georef, 0, In, AU, Sin Inf, SN.
+
+**NUMCOMUNA:** número de la comuna en la que ocurrió incidente vial, se encontraron 20.116 registros adicionales con caracteres como: AU, In, Sin Inf, SN.
+
+**LOCATION:** fuente de información con la cual se realizó la geo codificación, contiene la latitud y longitud, Posteriormente será separada en dos variables.
+
+**X:** coordenada X en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+**Y:** coordenada Y en metros del accidente, en sistema de coordenadas MAGNA Medellín Local.
+
+**NRO_RADICADO:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+**MES:** mes de ocurrencia del incidente vial. Esta variable no se modifica.
+
+**GRAVEDAD_ACCIDENTE:** clasificación del IPAT (Informe Policial de Accidentes de Tránsito) sobre la gravedad del accidente, corresponde al resultado más grave presentado en el accidente. Daños materiales “Sólo daños”, accidente con heridos “Herido”, accidente con muertos “Muerto”,en esta variable se cambia la codificación a UTF-8
+
+**FECHA_ACCIDENTES:** fecha de los accidente (formato YYYY-MM-DD hh:mi:ss), proviene del IPAT (Informe Policial de accidentes de Tránsito)
+
+**FECHA_ACCIDENTE:** fecha del accidente, proviene del IPAT (Informe Policial de accidente de Tránsito) esta variable posteriormente se elimina debido a que proporciona menos información que la variable FECHA_ACCIDENTES.
+
+**EXPEDIENTE:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento. Esta variable posteriormente se elimina.
+
+**DIRECCION ENCASILLADA:** dirección encasillada que entrega el geo codificador. Esta variable se elimina.
+
+**DIRECCION:** dirección donde ocurrió el incidente. Esta variable no se modifica.
+
+**NRO_RADICADO:** consecutivo que asigna UNE, según el orden de llegada de los expedientes para su diligenciamiento.
+
+</div>
+
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=FALSE}
+# reemplazamos los datos vacios de la variable CLASE_ACCIDENTE
+
+#Cambiar los datos vacios por "otro".
+bd$CLASE_ACCIDENTE <- ifelse(bd$CLASE_ACCIDENTE == "","Otro",bd$CLASE_ACCIDENTE) 
+
+#Correcion de tildes
+bd$CLASE_ACCIDENTE <- iconv(bd$CLASE_ACCIDENTE, from = "UTF-8", to = "ASCII//TRANSLIT") 
+
+```
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Cambiar datos vacios de la variable DISENO
+
+#Cambiar datos vacios por "no especificado"
+bd$DISENO <- ifelse(bd$DISENO == "","otro",bd$DISENO)
+
+#Correccion de tildes
+bd$DISENO <- iconv(bd$DISENO, from = "UTF-8",to="ASCII//TRANSLIT") 
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+#Creamos una nueva variables que contiene el dia de la semana en que ocurrio el accidente
+bd$DIA_SEMANA <- format(bd$FECHA_ACCIDENTE, format="%A")
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#Creamos una nueva variables la cual contiene la hora del accidente
+bd$HORA_ACCIDENTE <- substr(bd$FECHA_ACCIDENTES,start = 12 ,stop = 19)
+```
+
+### 1.1 Integración de datos Geo-Medellín y depuración.
+<div style="text-align: justify">
+En esta sección hicimos integración entre los datos de nuestra base de datos y los datos encontrados en la plataforma Geo Medellín, esto con el fin de encontrar datos faltantes respecto a barrios, comunas, posteriormente realizaremos la depuración de la base de datos, donde eliminaremos las observaciones con datos faltantes irrecuperables y variables que no sean necesarias para el contexto de nuestro análisis.
+</div>
+
+#### 1.1.1 Integración de datos Geo-Medellín
+<div style="text-align: justify">
+Para la integración de los datos usamos lo datos contenidos en la pagina web [Geo medellín](https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about), de nuestra base de datos usamos la variable CBML y con los primeros 4 dígitos poder obtener los datos faltantes de barrio y comuna cruzando los datos entre nuestra base de datos y la de geo Medellín.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results = 'hide'}
+catastro <- rgdal::readOGR(dsn = "./datos/Catastro_gdb.shp", layer = "Catastro_gdb")
+
+
+#quitamos los 962 datos de CBML que están errados ---> quedan 269803
+bd <- bd[-which(bd$CBML %in% c("AUC1","AUC2","Inst_14","Inst_16","Inst_18","Inst_19","Sin Inf","SN01")),]
+
+#Creamos un nueva columna llamada CB en bd que solo deja los primeros 4 digitos de CBML para buscarlos en la bd de catastro y traer la comuna y el barrio de los que estén vacios.
+
+bd <- mutate(bd, TEMP_CBML = str_sub(CBML,1,4))
+
+#agregando un cero adelante a los TEMP_CBML y creando una nueva columna --> TEMP2_CBML
+bd <- mutate(bd, TEMP2_CBML=ifelse(nchar(TEMP_CBML)==3,paste0("0", TEMP_CBML),TEMP_CBML),TEMP_CBML)
+
+colnames(bd)#nombres de columnas
+
+#base unificada
+
+bd <- inner_join(bd, dplyr::select(catastro@data,CODIGO,NOMBRE_COM,NOMBRE_BAR),
+                  by = c("TEMP2_CBML" = "CODIGO")) #quedan 254009 datos
+
+
+#Quitar repetidos por el inner_join
+
+bd <- bd %>%     #convirtiendo en factor para ver mejor los únicos
+  mutate(NRO_RADICADO = as.factor(NRO_RADICADO))
+radicados_duplicados <- bd$NRO_RADICADO[duplicated(bd$NRO_RADICADO)]
+
+radicados_duplicados  #verificar duplicados
+registros_rad_dup <- bd %>% 
+  
+  filter(NRO_RADICADO %in% radicados_duplicados) %>%  #
+  arrange(NRO_RADICADO)
+#registros_rad_dup
+
+
+bd_unif <- bd %>% 
+  filter(!(NRO_RADICADO %in% radicados_duplicados))
+#246417 observaciones únicas
+
+```
+
+#### 1.1.2 Depuración
+<div style="text-align: justify">
+Luego de hacer la revisión de las variables y eliminar los datos irrecuperables, procedemos a eliminar las variables temporales que creamos y otras variables presentes en la base de datos las cuales consideramos que no son necesarias para realizar el proyecto.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#Eliminacion de variables no necesarias
+
+base2 <- dplyr::select(bd_unif,-X,-Y,-BARRIO,-COMUNA,-DIRECCION.ENCASILLADA,-CBML,-TEMP_CBML,-TEMP2_CBML,-FECHA_ACCIDENTES,-EXPEDIENTE,-NRO_RADICADO)
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#Correccion de tildes
+base2$NOMBRE_BAR <- iconv(base2$NOMBRE_BAR, from = "UTF-8", to = "ASCII//TRANSLIT")
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#separar en dos nuevas variables la longitud y latitud, contenidos en la variables LOCATION
+base2 <- separate(base2,LOCATION,c("LONGITUD","LATITUD"),sep=",",convert=TRUE)
+
+#quitamos el "[" del dato
+base2$LONGITUD <- substring(base2$LONGITUD, first = 2)
+
+#Eliminar el espacio entre los numeros
+base2$LATITUD <- gsub(" ","", base2$LATITUD)
+
+#eliminar el ultimo elemento "]"
+base2$LATITUD <- gsub("]","", base2$LATITUD) 
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#renombraremos las variables
+base2 <- plyr::rename(base2,  c("FECHA_ACCIDENTE"="FECHA","NOMBRE_BAR"="BARRIO","NOMBRE_COM"="COMUNA","GRAVEDAD_ACCIDENTE"="GRAVEDAD","CLASE_ACCIDENTE"="CLASE"))
+```
+
+#### 1.1.3 Días feriados
+
+<div style="text-align: justify">
+Para las fechas especiales se crean dos nuevas variables; `FESTIVIDAD` y `TIPO_FESTIVIDAD`. Estas variables provienen de una base de datos externa que se adiciona a la base de análisis y abarca los días feriados en Colombia desde 2014 hasta 2021.
+
+**FESTIVIDAD:** contiene dos etiquetas (SI/NO). SI: cuando hay festividad para ese día. NO: cuando no hay festividad para ese día,  
+
+**TIPO_FESTIVIDAD:** contiene seis tipos de festividad:  
+**FESTIVO:** día feriado.  
+**NAVIDAD:** 24,25 y 31 de diciembre.  
+**SEM_SANTA:** toda la semana santa, desde el lunes hasta el domingo.  
+**BRUJAS:** 31 de octubre.  
+**MADRES:** el día de madres designado para el año respectivo.  
+**NUEVO:** primero de enero de cada año.  
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+fechas_especiales <- read.csv("./datos/dias_festivos.csv", sep = ",", header = T)
+class(fechas_especiales$FECHA)
+fechas_especiales$FECHA <- as.Date(fechas_especiales$FECHA, format="%d/%m/%Y")
+class(fechas_especiales$FECHA)
+```
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#unimos las fechas especiales a la base de datos
+base2 <- merge(x = base2, y = fechas_especiales, by = "FECHA", all.x = T)
+base2$FESTIVIDAD <- ifelse(is.na(base2$FESTIVIDAD),"NO","SI")
+base2$FESTIVIDAD <- as.factor(base2$FESTIVIDAD)
+summary(base2$FESTIVIDAD)
+```
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#agregando semana
+base2 <- mutate(base2, SEMANA=as.factor(week(base2$FECHA)))
+base2$SEMANA <- as.factor(base2$SEMANA)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#Tipo de festividad
+fechas_especiales2 <- read.csv("./datos/dias_festivos_2.csv",
+                       sep = ",", 
+                       header = T)
+
+#convertir a date
+fechas_especiales2$FECHA <- as.Date(fechas_especiales2$FECHA, format="%d/%m/%Y")#año,mes,dia
+
+class(base2$FECHA)
+class(fechas_especiales2$FECHA)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+base2 <- left_join(base2, dplyr::select(fechas_especiales2,FECHA,TIPO_FESTIVIDAD), 
+                  by = c("FECHA" = "FECHA"))
+
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+base2$TIPO_FESTIVIDAD <- factor(base2$TIPO_FESTIVIDAD, levels = c("A_NUEVO","BRUJAS","FESTIVO","MADRES","NAVIDAD","SEM_SANTA","No_festivo")) 
+base2$TIPO_FESTIVIDAD[is.na(base2$TIPO_FESTIVIDAD)] <- "No_festivo"
+
+
+base2$TIPO_FESTIVIDAD <- as.factor(base2$TIPO_FESTIVIDAD)
+```
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE, results = 'hide'}
+#EJECUTAR SOLO PARA CREAR EL CSV NUEVO
+#write.csv(base2,"./datos/base_depurada.csv",fileEncoding = "UTF-8")
+```
+
+
+<div style="text-align: justify">
+Luego de realizar todo el pre procesamiento a la base de datos, podemos observar mediante la siguiente tabla cual fue el resultado final.
+</div>
+
+
+```{r message=FALSE, warning=FALSE,echo=FALSE}
+head(base2,n=5)
+```
+
+</br>
+</br>
+</br>
+</br>
+
+
+## 2. Análisis descriptivo
+
+<div style="text-align: justify">
+En esta sección realizaremos el análisis descriptivo por las variables que consideramos que representan una descripción de la distribución de los datos a lo largo del periodo contenido, con el fin de ver cuál es el comportamiento de los datos.
+</div>
+
+### 2.1 Accidentes mensuales por Año
+
+<div style="text-align: justify">
+En el año 2014 no hay registrados datos de accidentes antes del 4 de julio, lo cual no significa que en estas fechas no ocurrieran accidentes. -Al igual que en 2014, en el año 2020 no se han registrado accidentes en la base de datos abiertos de Medellín, después del 31 de agosto hasta la fecha actual.
+</div>
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+bd_final <- base2
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+
+accidentes_mes_ano <- bd_final %>% group_by(FECHA) %>% 
+  dplyr::summarize(numero_de_accidentes = n())
+accidentes_mes_ano$ano <- year(accidentes_mes_ano$FECHA)
+accidentes_mes_ano$mes <- month(accidentes_mes_ano$FECHA)
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+aggregate(numero_de_accidentes~ano*mes, data = accidentes_mes_ano, FUN = mean) %>%
+  plot_ly(x = ~mes,
+          y = ~numero_de_accidentes, type = "scatter", mode = "lines+markers",
+          split = ~ano, line = list(width = 1.5)) %>%
+  layout(title = 'Promedio accidentes mensuales por año',
+         xaxis = list(title = "Mes"),
+         yaxis = list(title = "Número de accidentes"))
+```
+
+
+### 2.2 Accidentes por día de la semana
+
+<div style="text-align: justify">
+El día que presenta mayor cantidad de personas accidentadas, es el día viernes seguido del día martes, con una diferencia de 655 accidentes registrados. Seguido de esto los días miércoles – jueves y lunes – sábado, presentan una accidentalidad similar con una diferencia de 331 y 46 accidentes de diferencia, respectivamente, y el día domingo es el día con menor número de accidentes registrados.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_semana <- bd_final %>%
+  group_by(DIA_SEMANA) %>%
+  summarise(numero_de_accidentes = n())
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_semana$DIA_SEMANA <- ordered(accidentes_semana$DIA_SEMANA, levels = c("lunes","martes","miércoles","jueves","viernes","sábado","domingo"))
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+grafico_dia_semana <- ggplot(accidentes_semana, aes(fill = DIA_SEMANA, x = DIA_SEMANA, y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+  xlab("Día") + 
+  ylab("Número de accidentes ") + 
+  ggtitle("Número de accidentes por día de la semana") +
+  ylim(c(0,45000)) +
+  theme(plot.title = element_text(hjust = 0.5))+
+  guides(fill = guide_legend(title = "Día de la semana"))+
+  scale_fill_brewer(palette = "Set2")
+
+grafico_dia_semana
+```
+
+
+### 2.3 Accidentes por mes
+
+<div style="text-align: justify">
+En la segmentación por mes, podemos ver que el mes con mayor numero de accidentes es el 8 (agosto) con 24901 accidentes registrados, algo contrastante con el mes de diciembre el cual es el mes donde mas fiestas se registran y el cual cuenta con un número de accidentes de 21450.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_mes <- bd_final %>%
+  group_by(MES) %>%
+  summarise(numero_de_accidentes = n()) 
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_mes$MES <- gsub("1","Enero",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("2","Febrero",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("3","Marzo",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("4","Abril",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("5","Mayo",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("6","Junio",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("7","Julio",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("8","Agosto",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("9","Septiembre",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("Enero0","Octubre",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("EneroEnero","Noviembre",accidentes_mes$MES)
+accidentes_mes$MES <- gsub("EneroFebrero","Diciembre",accidentes_mes$MES)
+
+accidentes_mes$MES <- ordered(accidentes_mes$MES, levels = c("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"))
+
+```
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_mes, aes(fill=MES, x = MES, y = numero_de_accidentes)) + 
+    geom_bar(stat = "identity") +
+    scale_fill_hue() +
+    geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+    xlab("Mes") +
+    ylab("Número de accidentes") +
+    ylim(c(0,26000)) +
+    ggtitle("Número de accidentes por mes")+
+    theme(plot.title = element_text(hjust = 0.5),axis.text.x = element_text(angle = 90, hjust = 0))
+    
+
+
+
+
+```
+
+
+
+### 2.4 Accidentes por año
+
+<div style="text-align: justify">
+En los accidentes registrado entre los años 2015 a 2019 podemos ver que no hay mucha variación entre el numero de accidentes registrados en cada uno de estos, a diferencia de los años 2014 y 2020 los cuales en el dataset proporcionado solo contamos con datos desde el 4 de julio a 31 de diciembre, para los datos del 2014, y desde el 1 de enero hasta el 31 de agosto para los datos del año 2020, por esto es que podemos ver una diferencia notoria de estos dos años, respecto a los tomados de 2015 a 2019.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidente_año <- table(bd_final$ANO) %>% 
+  as.data.frame()
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidente_año, aes(fill = Var1, x = Var1, y = Freq)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = Freq, label = Freq), vjust = -0.5) +
+  scale_fill_brewer(palette = "Set2") + 
+  xlab("Año") +
+  ylab("Número de accidentes") +
+  ylim(c(0,50000)) +
+  ggtitle("Número de accidentes por año")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  guides(fill = guide_legend(title = "Año"))
+```
+
+
+
+### 2.5 Accidentes por comuna
+
+<div style="text-align: justify">
+Según la gráfica, la comuna en la que mas se presentan accidentes es la candelaria, esto debido a que es la comuna ubicada en el centro de Medellín y una de las que mayor flujo de vehículos tiene.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_comuna <- bd_final %>%
+  group_by(COMUNA) %>% 
+  dplyr::summarize(numero_de_accidentes = n())
+```
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_comuna, aes( fill = COMUNA, x = reorder(COMUNA,+numero_de_accidentes), y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  scale_fill_viridis_d( option = "C") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), hjust = -0.1) +
+  xlab("Comuna") + 
+  ylab("Número de accidentes") +
+  ggtitle("Número de accidentes por comuna") +
+  ylim(c(0,60000)) +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+```
+
+
+### 2.6 Accidentes por clase
+
+<div style="text-align: justify">
+En la siguiente grafica podemos ver que el tipo de accidente más común es de tipo “choque”, además de esto analizamos los tipos gravedad de accidentes y podemos evidenciar que el tipo de gravedad mas concurrente es “con heridos”.
+<div/>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_clase <- bd_final %>%
+  group_by(CLASE) %>%
+  summarise(numero_de_accidentes = n())
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_clase, aes(fill = CLASE, x = CLASE, y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+  xlab("Gravedad") + 
+  ylab("Número de acccidentes") + 
+  ggtitle("Número de accidentes por gravedad") +
+  ylim(c(0,170000))+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+  
+```
+
+
+</br>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_gravedad <- bd_final %>%
+  group_by(GRAVEDAD) %>%
+  summarise(numero_de_accidentes = n())
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_gravedad, aes(fill = GRAVEDAD, x = GRAVEDAD, y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+  xlab("Gravedad") + 
+  ylab("Número de acccidentes") + 
+  ggtitle("Número de accidentes por gravedad") +
+  ylim(c(0,150000))+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+  
+```
+
+
+### 2.7 Accidentes por tipo de festividad
+
+<div style="text-align: justify">
+En la grafica de accidentes por tipo de festividad podemos ver que el mayor numero de accidentes que se presentan es la semana santa, pero esto dado que en esta categoría están incluidos los 7 días de la semana, el cual, si los dividimos en una proporción igual nos como resultado un promedio de 434 accidentes por día, por lo que están dentro de los índices de los otros tipos de festividad.  Además, en la gráfica de accidentes por día feriado, vemos que los accidentes ocurridos en estas fechas representan el 4.27% de el total de los accidentes registrados en el periodo de 2014 a 2020.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_tipo_festividad <- bd_final %>%
+  group_by(TIPO_FESTIVIDAD) %>%
+  summarise(numero_de_accidentes = n())
+
+accidentes_tipo_festividad <- accidentes_tipo_festividad[c(1,2,4,5,6),]
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("A_NUEVO","AÑO NUEVO",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
+accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("SEM_SANTA","SEMANA SANTA",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
+accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("MADRES","DIA DE LAS MADRES",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
+accidentes_tipo_festividad$TIPO_FESTIVIDAD <- gsub("BRUJAS","HALLOWEEN",accidentes_tipo_festividad$TIPO_FESTIVIDAD)
+```
+
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_tipo_festividad, aes(fill = TIPO_FESTIVIDAD, x = TIPO_FESTIVIDAD, y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+  xlab("Tipo de festividad") + 
+  ylab("Número de acccidentes") + 
+  ggtitle("Número de accidentes por tipo de festividad") +
+  ylim(c(0,5000))+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+  
+```
+
+
+<div style="text-align: justify">
+Además de verificar los accidentes por tipo de festividad, también haremos revisión de la distribución de los datos respecto a si el día del accidente era o no festivo.
+</div>
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+accidentes_festividad <- bd_final %>%
+  group_by(FESTIVIDAD) %>%
+  summarise(numero_de_accidentes = n())
+```
+
+```{r message=FALSE, warning=FALSE , echo=FALSE}
+ggplot(data = accidentes_festividad, aes(fill = FESTIVIDAD, x = FESTIVIDAD, y = numero_de_accidentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = numero_de_accidentes, label = numero_de_accidentes), vjust = -0.5) +
+  xlab("Festivo") + 
+  ylab("Número de acccidentes") + 
+  ggtitle("Número de accidentes en días feriados") +
+  ylim(c(0,250000))+
+  theme(plot.title = element_text(hjust = 0.5),legend.position = "none")
+```
+
+</br>
+</br>
+</br>
+</br>
+
+
+
+## 3. Entrenamiento de un modelo predictivo
+
+<div style="text-align: justify">
+En esta sección. construiremos y validaremos un modelo que permita predecir la accidentalidad por tipo de accidente a nivel semanal, mensual y diario. Para esto se consideran fechas especiales.
+
+Los modelos predictivos que veremos se construirán con los datos de los años 2014, 2015, 2016, 2017 y 2018; esta será la base para entrenamiento. Los accidentes del año 2019 y 2020 se usarán para validar los modelos.
+
+El criterio de éxito de los modelos predictivos será el MAE de la predicción.
+</div>
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Lectura de la base de datos
+bd_depurada <- read.csv("./datos/base_depurada.csv", dec=".", header=T,sep=",")
+bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
+
+# Division en train y val
+datos_val_2019 <- subset(bd_depurada, (ANO == '2019'))
+datos_val_2020 <- subset(bd_depurada, (ANO == '2020'))
+base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
+
+```
+
+### 3.1 Diaria
+<div style="text-align: justify">
+Empezaremos por buscar el mejor modelo para realizar las predicciones diarias.
+</div>
+
+### 3.1.1 Modelo 1: modelo lineal generalizado inicial
+
+<div style="text-align: justify">
+Como nos interesa predecir el número de accidentes por unidad de tiempo, resulta conveniente utilizar un modelo lineal generalizado con la distribución Poisson. Para este primer modelo, consideraremos únicamente las variables `FESTIVIDAD` Y `DIA_SEMANA` para predecir la accidentalidad.
+</div>
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+#Modelo lineal
+datos_lm1_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, 
+                                     DIA_SEMANA) %>% count(name = "NRO_ACCID") 
+
+# lm1 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, data = datos_lm1_tr)
+lm1 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, family = "poisson", data = datos_lm1_tr)
+```
+
+### 3.1.1.2 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+### Evaluación modelo 1
+datos_lm1_tr_pred <- datos_lm1_tr[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_tr_pred, type="response"))
+actual <- datos_lm1_tr$NRO_ACCID
+lm1_tr_mse <- MSE(predicted, actual) # MSE
+lm1_tr_mae <- MAE(predicted, actual) # MAE
+lm1_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_tr_mse, lm1_tr_mae, lm1_tr_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm1_tr_mae`, y un R2 de `r lm1_tr_r2`.
+</div>
+
+### 3.1.1.3 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
+actual <- datos_lm1_val$NRO_ACCID
+lm1_val_mse <- MSE(predicted, actual) # MSE
+lm1_val_mae <- MAE(predicted, actual) # MAE
+lm1_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`.
+</div>
+
+### 3.1.1.4 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_variation = function(mae_tr, mae_val){
+  variacion = mae_tr - mae_vl
+  porcentaje = variacion / mae_tr
+  porcentaje * 100 * -1
+}
+
+mae_tr = lm1_tr_mae
+mae_vl = lm1_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 20.1888 %, lo cual indica un posible sobre entrenamiento. Además, el R2 es relativamente bajo, cercano al 50%. Veamos que pasa para el año 2020.
+</div>
+
+### 3.1.1.5 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
+actual <- datos_lm1_val$NRO_ACCID
+lm1_val_mse <- MSE(predicted, actual) # MSE
+lm1_val_mae <- MAE(predicted, actual) # MAE
+lm1_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`. Este MAE tan alto y este R2 negativo indican que el modelo se ajusta muy pobremente a los datos del año 2020. 
+
+Sin embargo, tal como veremos a continuación, ningún modelo se ajusta bien al año 2020. Esto se puede explicar por dos posibles razones:
+
+1. En 2020 fue el inicio de la pandemia, y hubo muchos menos accidentes.
+2. En 2020 solo hay observaciones hasta el mes de agosto.
+
+Por tanto, el año 2020 no nos será muy útil para validar los modelos, ya que el comportamiento de este año es muy diferente a los demás años con los que se entrenó el modelo.
+</div>
+
+### 3.1.1.6 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm1_tr_mae
+mae_vl = lm1_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 226.8433 %.
+</div>
+
+### 3.1.2 Modelo 2: modelo lineal generalizado, usando la variable clase
+
+<div style="text-align: justify">
+En el segundo modelo, utilizaremos las mismas variables del modelo inicial, y sumaremos la variable clase. Veamos su desempeño.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   CLASE) %>% count(name = "NRO_ACCID")
+# lm2 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE,
+#            data = datos_lm2_tr)
+lm2 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson",
+           data = datos_lm2_tr)
+```
+
+### 3.1.2.1 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_tr_pred <- datos_lm2_tr[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_tr_pred, type="response"))
+actual <- datos_lm2_tr$NRO_ACCID
+lm2_tr_mse <- MSE(predicted, actual) # MSE
+lm2_tr_mae <- MAE(predicted, actual) # MAE
+lm2_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_tr_mse, lm2_tr_mae, lm2_tr_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm2_tr_mae`, y un R2 de `r lm2_tr_r2`.
+</div>
+
+### 3.1.2.2 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
+
+datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
+actual <- datos_lm2_val$NRO_ACCID
+lm2_val_mse <- MSE(predicted, actual) # MSE
+lm2_val_mae <- MAE(predicted, actual) # MAE
+lm2_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. Estos valores son mucho mejores que los obtenidos con el modelo anterior.
+</div>
+
+### 3.1.2.3 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm2_tr_mae
+mae_vl = lm2_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 6.347841 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue muy bueno tanto en entrenamiento como en validacion, superior al 90%. Este modelo es un muy buen candidato para ser utilizado en las predicciones futuras.
+</div>
+
+### 3.1.2.4 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
+
+datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
+actual <- datos_lm2_val$NRO_ACCID
+lm2_val_mse <- MSE(predicted, actual) # MSE
+lm2_val_mae <- MAE(predicted, actual) # MAE
+lm2_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. El modelo se ajusta ligeramente mejor a los datos de 2020 respecto al caso anterior, pero sigue siendo muy inadecuado para predecir la accidentalidad de este año. Tal como se explicó anteriormente, no es adecuado validar el modelo con estos datos.
+</div>
+
+### 3.1.2.5 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm2_tr_mae
+mae_vl = lm2_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 121.1165 %.
+</div>
+
+### 3.1.3 Modelo 3: modelo lineal generalizado, usando la variable diseño
+
+<div style="text-align: justify">
+El modelo 2 tuvo un muy buen desempeño. Aun así, sería interesante probar modelos utilizando otras variables. Para este caso usaremos las variables Festividad, Día Semana y Diseño.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   DISENO) %>% count(name = "NRO_ACCID")
+# lm3 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO,
+#            data = datos_lm3_tr)
+lm3 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO, family = "poisson",
+           data = datos_lm3_tr)
+```
+
+### 3.1.3.1 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_tr_pred <- datos_lm3_tr[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_tr_pred, type="response"))
+actual <- datos_lm3_tr$NRO_ACCID
+lm3_tr_mse <- MSE(predicted, actual) # MSE
+lm3_tr_mae <- MAE(predicted, actual) # MAE
+lm3_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_tr_mse, lm3_tr_mae, lm3_tr_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm3_tr_mae`, y un R2 de `r lm3_tr_r2`.
+</div>
+
+### 3.1.3.2 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
+
+datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
+actual <- datos_lm3_val$NRO_ACCID
+lm3_val_mse <- MSE(predicted, actual) # MSE
+lm3_val_mae <- MAE(predicted, actual) # MAE
+lm3_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`. 
+</div>
+
+### 3.1.3.3 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm3_tr_mae
+mae_vl = lm3_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue de 10.01639 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue bastante bueno tanto en entrenamiento como en validacion, cercano al 90%, pero inferior al del modelo 2. Además, el MAE tambien fue superior que el del modelo 2. Por tanto, descartamos este modelo.
+</div>
+
+### 3.1.3.4 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
+
+datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
+actual <- datos_lm3_val$NRO_ACCID
+lm3_val_mse <- MSE(predicted, actual) # MSE
+lm3_val_mae <- MAE(predicted, actual) # MAE
+lm3_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`.
+</div>
+
+### 3.1.3.5 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm3_tr_mae
+mae_vl = lm3_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 127.1107 %.
+</div>
+
+### 3.1.4 Modelo 4: modelo lineal generalizado, usando la variable comuna
+
+<div style="text-align: justify">
+Ahora, probaremos un nuevo modelo, tomando las mismas variables del modelo inicial, pero añadiendo la variable `COMUNA`.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   COMUNA) %>% count(name = "NRO_ACCID")
+# lm5 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA,
+#            data = datos_lm5_tr)
+lm5 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA, family = "poisson",
+           data = datos_lm5_tr)
+```
+
+### 3.1.4.1 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_tr_pred <- datos_lm5_tr[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_tr_pred, type="response"))
+actual <- datos_lm5_tr$NRO_ACCID
+lm5_tr_mse <- MSE(predicted, actual) # MSE
+lm5_tr_mae <- MAE(predicted, actual) # MAE
+lm5_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_tr_mse, lm5_tr_mae, lm5_tr_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm5_tr_mae`, y un R2 de `r lm5_tr_r2`.
+</div>
+
+### 3.1.4.2 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
+actual <- datos_lm5_val$NRO_ACCID
+lm5_val_mse <- MSE(predicted, actual) # MSE
+lm5_val_mae <- MAE(predicted, actual) # MAE
+lm5_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_val_mse, lm5_val_mae, lm5_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm5_val_mae`, y un R2 de `r lm5_val_r2`. 
+</div>
+
+### 3.1.4.3 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm5_tr_mae
+mae_vl = lm5_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue de 3.057955 %; esta es la variación más baja obtenida hasta el momento, y nos da una buena señal de que no hay sobre entrenamiento. También, a pesar de que los R2 son ligeramente inferiores respecto a los modelos 2 y 3, pues son cercanos al 80%, el MAE fue mucho más bajo que en los anteriores modelos, y, teniendo en cuenta que el MAE es nuestro criterio de éxito, podemos decir que este modelo también es un buen candidato para realizar nuestras predicciones.
+</div>
+
+### 3.1.4.4 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
+actual <- datos_lm5_val$NRO_ACCID
+lm5_val_mse <- MSE(predicted, actual) # MSE
+lm5_val_mae <- MAE(predicted, actual) # MAE
+lm5_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_val_mse, lm5_val_mae, lm5_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm5_val_mae`, y un R2 de `r lm5_val_r2`.
+</div>
+
+### 3.1.4.5 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm5_tr_mae
+mae_vl = lm5_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación es de 53.48188 %.
+</div>
+
+### 3.1.5 Modelo 5: modelo lineal generalizado, usando las variables clase y comuna
+
+<div style="text-align: justify">
+Finalmente, probaremos un último modelo, usando aquellas variables que tuvieron el mejor MAE en los modelos anteriores, es decir, `CLASE` y `COMUNA`. Se incluirán también las variables del modelo inicial.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr)
+```
+
+### 3.1.5.1 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred <- datos_lm6_tr[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_tr_pred, type="response"))
+actual <- datos_lm6_tr$NRO_ACCID
+lm6_tr_mse <- MSE(predicted, actual) # MSE
+lm6_tr_mae <- MAE(predicted, actual) # MAE
+lm6_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_mse, lm6_tr_mae, lm6_tr_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_mae`, y un R2 de `r lm6_tr_r2`.
+</div>
+
+### 3.1.5.2 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
+actual <- datos_lm6_val$NRO_ACCID
+lm6_val_mse <- MSE(predicted, actual) # MSE
+lm6_val_mae <- MAE(predicted, actual) # MAE
+lm6_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mse, lm6_val_mae, lm6_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_mae`, y un R2 de `r lm6_val_r2`. 
+</div>
+
+### 3.1.5.3 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mae
+mae_vl = lm6_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue mínima, de tan solo -0.75 %; este dato nos ayuda a estar muy seguros de que no hay sobre entrenamiento. Con este modelo también conseguimos el MAE más pequeño de todos, cercano a 1, y el R2 cuadrado sigue siendo bueno, superior al 70%. Por tanto, concluimos que este es el mejor modelo para predecir, según nuestro criterio de éxito.
+</div>
+
+### 3.1.5.4 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
+actual <- datos_lm6_val$NRO_ACCID
+lm6_val_mse <- MSE(predicted, actual) # MSE
+lm6_val_mae <- MAE(predicted, actual) # MAE
+lm6_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mse, lm6_val_mae, lm6_val_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_mae`, y un R2 de `r lm6_val_r2`.
+</div>
+
+### 3.1.5.5 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mae
+mae_vl = lm6_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue de 16.3796 %.
+</div>
+
+### 3.2 Semanal
+
+<div style="text-align: justify">
+Una vez tenemos determinado el mejor modelo (5) para las predicciones diarias, podemos pasar a evaluarlo semanalmente para validar su eficiencia en plazos semanales.
+</div>
+
+### 3.2.1 Modelo seleccionado: modelo lineal generalizado, usando las variables clase y comuna
+
+<div style="text-align: justify">
+Veamos cómo se comporta este modelo para predecir la accidentalidad semanalmente. En este caso, las variables a utilizar serán `FESTIVIDAD`, `SEMANA`, `CLASE` y `COMUNA`.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_semanal <- base_train %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6_semanal <- glm(NRO_ACCID ~ FESTIVIDAD+SEMANA+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr_semanal)
+```
+
+### 3.2.1.1 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred_semanal <- datos_lm6_tr_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_tr_pred_semanal, type="response"))
+actual <- datos_lm6_tr_semanal$NRO_ACCID
+lm6_tr_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_tr_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_tr_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_semanal_mse, lm6_tr_semanal_mae, lm6_tr_semanal_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_semanal_mae`, y un R2 de `r lm6_tr_semanal_r2`.
+</div>
+
+### 3.2.1.2 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_semanal <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_semanal <- datos_lm6_val_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_val_pred_semanal, type="response"))
+actual <- datos_lm6_val_semanal$NRO_ACCID
+lm6_val_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_val_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_val_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_semanal_mse, lm6_val_semanal_mae, lm6_val_semanal_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_semanal_mae`, y un R2 de `r lm6_val_semanal_r2`. 
+</div>
+
+### 3.2.1.3 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_semanal_mae
+mae_vl = lm6_val_semanal_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue muy pequeña, de tan solo -1.177976 %; este dato nos ayuda a estar muy seguros de que no hay sobre entrenamiento. Con este modelo también conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto, concluimos que este modelo sigue siendo adecuado para realizar predicciones a nivel semanal, según nuestro criterio de éxito.
+</div>
+
+### 3.2.1.4 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_semanal <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_semanal <- datos_lm6_val_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_val_pred_semanal, type="response"))
+actual <- datos_lm6_val_semanal$NRO_ACCID
+lm6_val_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_val_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_val_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_semanal_mse, lm6_val_semanal_mae, lm6_val_semanal_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_semanal_mae`, y un R2 de `r lm6_val_semanal_r2`.
+</div>
+
+### 3.2.1.5 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_semanal_mae
+mae_vl = lm6_val_semanal_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue de 12.58592 %.
+</div>
+
+### 3.3 Mensual
+
+<div style="text-align: justify">
+Finalmente, evaluaremos el modelo 5 de manera mensual, para validar su eficacia en este caso.
+</div>
+
+### 3.3.1 Modelo seleccionado: modelo lineal generalizado, usando las variables clase y comuna
+
+<div style="text-align: justify">
+Veamos cómo se comporta este modelo para predecir la accidentalidad mensualmente. Las variables a usar son `FESTIVIDAD`, `MES`, `CLASE` y `COMUNA`.
+</div>
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_mensual <- base_train %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6_mensual <- glm(NRO_ACCID ~ FESTIVIDAD+MES+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr_mensual)
+```
+
+### 3.3.2 Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred_mensual <- datos_lm6_tr_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_tr_pred_mensual, type="response"))
+actual <- datos_lm6_tr_mensual$NRO_ACCID
+lm6_tr_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_tr_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_tr_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_mensual_mse, lm6_tr_mensual_mae, lm6_tr_mensual_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_mensual_mae`, y un R2 de `r lm6_tr_mensual_r2`.
+</div>
+
+### 3.3.3 Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_mensual <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_mensual <- datos_lm6_val_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_val_pred_mensual, type="response"))
+actual <- datos_lm6_val_mensual$NRO_ACCID
+lm6_val_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_val_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_val_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mensual_mse, lm6_val_mensual_mae, lm6_val_mensual_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_mensual_mae`, y un R2 de `r lm6_val_mensual_r2`.
+</div>
+
+### 3.3.4 Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mensual_mae
+mae_vl = lm6_val_mensual_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue muy pequeña, de tan solo -1.258233 %; este dato nos ayuda a estar muy seguros de que no hay sobre entrenamiento. Con este modelo también conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto, concluimos que este modelo sigue siendo adecuado para realizar predicciones a nivel semanal, según nuestro criterio de éxito.
+</div>
+
+### 3.3.5 Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_mensual <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_mensual <- datos_lm6_val_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_val_pred_mensual, type="response"))
+actual <- datos_lm6_val_mensual$NRO_ACCID
+lm6_val_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_val_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_val_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mensual_mse, lm6_val_mensual_mae, lm6_val_mensual_r2)
+```
+
+<div style="text-align: justify">
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_mensual_mae`, y un R2 de `r lm6_val_mensual_r2`.
+</div>
+
+### 3.3.6 Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mensual_mae
+mae_vl = lm6_val_mensual_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+<div style="text-align: justify">
+La variación entre el MAE de entrenamiento y validación fue de 12.37932 %.
+</div>
+
+
+## 4. Predicción
+
+<div style="text-align: justify">
+
+</div>
+
+## 5. Agrupamiento
+
+<div style="text-align: justify">
+
+</div>
+
+## Aplicación
+
+<div style="text-align: justify">
+
+</div>
+
+## Video promocional 
+
+<div style="text-align: justify">
+
+</div>
+
+## Referencias
+<div style="text-align: justify">
+[Geo-Medellín](https://geomedellin-m-medellin.opendata.arcgis.com/datasets/M-Medellin::limite-barrio-vereda-catastral/about)
+</br>
+[Stackoverflow](https://es.stackoverflow.com/)
+</br>
+[Plotly](https://plotly.com/r)
+</br>
+[ggplot2-book.org](https://ggplot2-book.org/scale-colour.html)
+</br>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
