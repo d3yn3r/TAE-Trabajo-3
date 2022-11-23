@@ -4,7 +4,7 @@ mes=1
 dia=1
 cadena=""
 lista=[]
-clase=['Choque','Atropello','Otro','Caida_de_Ocupante','Volcamiento','Incendio','Caida']
+clase=['Choque','Atropello','Otro','Caida de Ocupante','Volcamiento','Incendio','Caida Ocupante']
 comunas = ['ALTAVISTA', 'ARANJUEZ', 'BELEN', 'BUENOS AIRES', 'CASTILLA', 'DOCE DE OCTUBRE', 'EL POBLADO', 'GUAYABAL', 'LA AMERICA', 'LA CANDELARIA', 'LAURELES', 'MANRIQUE', 'POPULAR', 'ROBLEDO', 'SAN ANTONIO DE PRADO', 'SAN CRISTOBAL', 'SAN JAVIER', 'SANTA CRUZ', 'SANTA ELENA', 'VILLA HERMOSA']
 import csv
 
@@ -64,20 +64,20 @@ while(True):
                     lista_def = [fecha, año, i, j, str(findDay(str(dia) + " " + str(mes) + " " + str(año))), semana,
                                  str(mes), festivos(fecha)]
 
-            if (mes == 1 or mes == 3 or mes == 5 or mes == 7 or mes == 8 or mes == 10) and i == 'Caida' and j =='VILLA HERMOSA':
+            if (mes == 1 or mes == 3 or mes == 5 or mes == 7 or mes == 8 or mes == 10) and i == 'Caida Ocupante' and j =='VILLA HERMOSA':
                 if dia == 31:
                     mes = mes + 1
                     dia = 0
-            elif (mes == 4 or mes == 6 or mes == 9 or mes == 11) and i == 'Caida' and j =='VILLA HERMOSA' :
+            elif (mes == 4 or mes == 6 or mes == 9 or mes == 11) and i == 'Caida Ocupante' and j =='VILLA HERMOSA' :
                 if dia == 30:
                     mes = mes + 1
                     dia = 0
-            elif mes == 2 and i == 'Caida' and j =='VILLA HERMOSA':
+            elif mes == 2 and i == 'Caida Ocupante' and j =='VILLA HERMOSA':
                 if dia == 28:
                     mes = mes + 1
                     dia = 0
             elif mes == 12:
-                if dia == 31 and i == 'Caida' and j =='VILLA HERMOSA':
+                if dia == 31 and i == 'Caida Ocupante' and j =='VILLA HERMOSA':
                     año = año + 1
                     mes = 1
                     dia = 0
