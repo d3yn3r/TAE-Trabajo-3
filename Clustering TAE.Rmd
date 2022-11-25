@@ -47,18 +47,18 @@ remove.accents <- function(s) {
 ```
 
 ```{r Lectura de la base de datos principal}
-Base_depurada <- read.csv("base_depurada.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+Base_depurada <- read.csv("./datos/base_depurada.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
 ```
 
 ```{r Lectura de la base de datos secundaria}
-barrios_csv<-read.csv("Catastro_gdb.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
-comunas_csv<-read.csv("planeacion_gdb.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+barrios_csv<-read.csv("./datos/Catastro_gdb.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+comunas_csv<-read.csv("./datos/planeacion_gdb.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
 ```
 
 
 ```{r Lectura de archivos geograficos}
-Barrios_info_geo <- read_sf("Catastro_gdb.shp")
-mapa_comuna_geo<-read_sf("planeacion_gdb.shp")
+Barrios_info_geo <- read_sf("./datos/Catastro_gdb.shp")
+mapa_comuna_geo<-read_sf("./datos/planeacion_gdb.shp")
 ```
 
 ```{r remover tildes en nombres de comunas}
