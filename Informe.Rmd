@@ -629,7 +629,7 @@ El criterio de éxito de los modelos predictivos será el MAE de la predicción.
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
 # Lectura de la base de datos
-bd_depurada <- read.csv("./datos/base_depurada.csv", dec=".", header=T,sep=",")
+bd_depurada <- read.csv("./datos/base_depurada3.csv", dec=".", header=T,sep=",")
 bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
 
 # Division en train y val
