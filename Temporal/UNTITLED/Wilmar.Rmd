@@ -1,0 +1,633 @@
+---
+title: "Entrenamiento del modelo"
+author: "Wilmar Andres Garcia Bedoya"
+date: '2022-11-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(qpcR)
+library(MLmetrics)
+```
+
+## Entrenamiento de un modelo predictivo
+
+En esta sección. construiremos y validaremos un modelo que permita predecir la accidentalidad por tipo de accidente a nivel semanal, mensual y diario. Para esto se considerararan fechas especiales.
+
+Los modelos predictivos que veremos se construiran con los datos de los años 2014, 2015, 2016, 2017 y 2018; esta será la base para entrenamiento. Los accidentes del año 2019 y 2020 se usaran para validar los modelos.
+
+El criterio de éxito de los modelos predictivos será el MAE de la predicción.
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+# Lectura de la base de datos
+bd_depurada <- read.csv("base_depurada.csv", dec=".", header=T,sep=",", encoding = "UTF-8")
+bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
+
+bd_depurada$CLASE = remove.accents(bd_depurada$CLASE )
+bd_depurada$COMUNA = remove.accents(bd_depurada$COMUNA )
+
+# Division en train y val
+datos_val_2019 <- subset(bd_depurada, (ANO == '2019'))
+datos_val_2020 <- subset(bd_depurada, (ANO == '2020'))
+base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
+
+```
+
+```{r}
+
+```
+
+
+# Diaria
+Empezaremos por buscar el mejor modelo para realizar las predicciones diarias.
+
+## Modelo 1: modelo lineal generalizado inicial
+
+Como nos interesa predecir el número de accidentes por unidad de tiempo, resulta conveniente utilizar un modelo lineal generalizado con la distribución Poisson. Para este primer modelo, consideraremos unicamente las variables FESTIVIDAD Y DIA_SEMANA para predecir la accidentalidad.
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+#Modelo lineal
+datos_lm1_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, 
+                                     DIA_SEMANA) %>% count(name = "NRO_ACCID") 
+
+# lm1 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, data = datos_lm1_tr)
+lm1 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA, family = "poisson", data = datos_lm1_tr)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+# Evaluacion modelo 1
+datos_lm1_tr_pred <- datos_lm1_tr[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_tr_pred, type="response"))
+actual <- datos_lm1_tr$NRO_ACCID
+lm1_tr_mse <- MSE(predicted, actual) # MSE
+lm1_tr_mae <- MAE(predicted, actual) # MAE
+lm1_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_tr_mse, lm1_tr_mae, lm1_tr_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm1_tr_mae`, y un R2 de `r lm1_tr_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
+actual <- datos_lm1_val$NRO_ACCID
+lm1_val_mse <- MSE(predicted, actual) # MSE
+lm1_val_mae <- MAE(predicted, actual) # MAE
+lm1_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_variation = function(mae_tr, mae_val){
+  variacion = mae_tr - mae_vl
+  porcentaje = variacion / mae_tr
+  porcentaje * 100 * -1
+}
+
+mae_tr = lm1_tr_mae
+mae_vl = lm1_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 20.1888 %, lo cual indica un posible sobreentrenamiento. Además, el R2 es relativamente bajo, cercano al 50%. Veamos que pasa para el año 2020.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm1_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA) %>% count(name = "NRO_ACCID")
+
+datos_lm1_val_pred <- datos_lm1_val[,-c(4)]
+predicted <- round(predict(lm1, newdata=datos_lm1_val_pred, type="response"))
+actual <- datos_lm1_val$NRO_ACCID
+lm1_val_mse <- MSE(predicted, actual) # MSE
+lm1_val_mae <- MAE(predicted, actual) # MAE
+lm1_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm1_val_mse, lm1_val_mae, lm1_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm1_val_mae`, y un R2 de `r lm1_val_r2`. Este MAE tan alto y este R2 negativo indican que el modelo se ajusta muy pobremente a los datos del año 2020. 
+
+Sin embargo, tal como veremos a continuación, ningún modelo se ajusta bien al año 2020. Esto se puede explicar por dos posibles razones:
+
+1. En 2020 fue el inicio de la pandemia, y hubo muchos menos accidentes.
+2. En 2020 solo hay observaciones hasta el mes de agosto.
+
+Por tanto, el año 2020 no nos será muy útil para validar los modelos, ya que el comportamiento de este año es muy diferente a los demás años con los que se entrenó el modelo.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm1_tr_mae
+mae_vl = lm1_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 226.8433 %.
+
+## Modelo 2: modelo lineal generalizado, usando la variable clase
+
+En el segundo modelo, utilizaremos las mismas variables del modelo inicial, y sumaremos la variable clase. Veamos su desempeño.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   CLASE) %>% count(name = "NRO_ACCID")
+# lm2 <- lm(NRO_ACCID /~ FESTIVIDAD+DIA_SEMANA+CLASE,
+#            data = datos_lm2_tr)
+lm2 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson",
+           data = datos_lm2_tr)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_tr_pred <- datos_lm2_tr[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_tr_pred, type="response"))
+actual <- datos_lm2_tr$NRO_ACCID
+lm2_tr_mse <- MSE(predicted, actual) # MSE
+lm2_tr_mae <- MAE(predicted, actual) # MAE
+lm2_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_tr_mse, lm2_tr_mae, lm2_tr_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm2_tr_mae`, y un R2 de `r lm2_tr_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
+
+datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
+actual <- datos_lm2_val$NRO_ACCID
+lm2_val_mse <- MSE(predicted, actual) # MSE
+lm2_val_mae <- MAE(predicted, actual) # MAE
+lm2_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. Estos valores son mucho mejores que los obtenidos con el modelo anterior.
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm2_tr_mae
+mae_vl = lm2_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 6.347841 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue muy bueno tanto en entrenamiento como en validacion, superior al 90%. Este modelo es un muy buen candidato para ser utilizado en las predicciones futuras.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm2_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, CLASE) %>% count(name = "NRO_ACCID")
+
+datos_lm2_val_pred <- datos_lm2_val[,-c(5)]
+predicted <- round(predict(lm2, newdata=datos_lm2_val_pred, type="response"))
+actual <- datos_lm2_val$NRO_ACCID
+lm2_val_mse <- MSE(predicted, actual) # MSE
+lm2_val_mae <- MAE(predicted, actual) # MAE
+lm2_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm2_val_mse, lm2_val_mae, lm2_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm2_val_mae`, y un R2 de `r lm2_val_r2`. El modelo se ajusta ligeramente mejor a los datos de 2020 respecto al caso anterior, pero sigue siendo muy inadecuado para predecir la accidentalidad de este año. Tal como se explicó anteriormente, no es adecuado validar el modelo con estos datos.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm2_tr_mae
+mae_vl = lm2_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 121.1165 %.
+
+## Modelo 3: modelo lineal generalizado, usando la variable diseño
+
+El modelo 2 tuvo un muy buen desempeño. Aun así, sería interesante probar modelos utilizando otras variables. Para este caso usaremos las variables Festividad, Día Semana y Diseño.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   DISENO) %>% count(name = "NRO_ACCID")
+# lm3 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO,
+#            data = datos_lm3_tr)
+lm3 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+DISENO, family = "poisson",
+           data = datos_lm3_tr)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_tr_pred <- datos_lm3_tr[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_tr_pred, type="response"))
+actual <- datos_lm3_tr$NRO_ACCID
+lm3_tr_mse <- MSE(predicted, actual) # MSE
+lm3_tr_mae <- MAE(predicted, actual) # MAE
+lm3_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_tr_mse, lm3_tr_mae, lm3_tr_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm3_tr_mae`, y un R2 de `r lm3_tr_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
+
+datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
+actual <- datos_lm3_val$NRO_ACCID
+lm3_val_mse <- MSE(predicted, actual) # MSE
+lm3_val_mae <- MAE(predicted, actual) # MAE
+lm3_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`. 
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm3_tr_mae
+mae_vl = lm3_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue de 10.01639 %; según estta cifra, no hay indicios de sobreentrenamiento. El R2 fue bastante bueno tanto en entrenamiento como en validacion, cercano al 90%, pero inferior al del modelo 2. Además, el MAE tambien fue superior que el del modelo 2. Por tanto, descartamos este modelo.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm3_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, DISENO) %>% count(name = "NRO_ACCID")
+
+datos_lm3_val_pred <- datos_lm3_val[,-c(5)]
+predicted <- round(predict(lm3, newdata=datos_lm3_val_pred, type="response"))
+actual <- datos_lm3_val$NRO_ACCID
+lm3_val_mse <- MSE(predicted, actual) # MSE
+lm3_val_mae <- MAE(predicted, actual) # MAE
+lm3_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm3_val_mse, lm3_val_mae, lm3_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm3_val_mae`, y un R2 de `r lm3_val_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm3_tr_mae
+mae_vl = lm3_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 127.1107 %.
+
+## Modelo 4: modelo lineal generalizado, usando la variable comuna
+
+Ahora, probaremos un nuevo modelo, tomando las mismas variables del modelo inicial, pero añadiendo la variable COMUNA.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   COMUNA) %>% count(name = "NRO_ACCID")
+# lm5 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA,
+#            data = datos_lm5_tr)
+lm5 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+COMUNA, family = "poisson",
+           data = datos_lm5_tr)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_tr_pred <- datos_lm5_tr[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_tr_pred, type="response"))
+actual <- datos_lm5_tr$NRO_ACCID
+lm5_tr_mse <- MSE(predicted, actual) # MSE
+lm5_tr_mae <- MAE(predicted, actual) # MAE
+lm5_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_tr_mse, lm5_tr_mae, lm5_tr_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm5_tr_mae`, y un R2 de `r lm5_tr_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
+actual <- datos_lm5_val$NRO_ACCID
+lm5_val_mse <- MSE(predicted, actual) # MSE
+lm5_val_mae <- MAE(predicted, actual) # MAE
+lm5_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_val_mse, lm5_val_mae, lm5_val_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm5_val_mae`, y un R2 de `r lm5_val_r2`. 
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm5_tr_mae
+mae_vl = lm5_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue de 3.057955 %; esta es la variación más baja obtenida hasta el momento, y nos da una buena señal de que no hay sobreentrenamiento. También, a pesar de que los R2 son ligeramente inferiores respecto a los modelos 2 y 3, pues son cercanos al 80%, el MAE fue mucho mas bajo que en los anteriores modelos, y, teniendo en cuenta que el MAE es nuestro criterio de exito, podemos decir que este modelo tambien es un buen candidato para realizar nuestras predicciones.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm5_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, 
+                                        DIA_SEMANA, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm5_val_pred <- datos_lm5_val[,-c(5)]
+predicted <- round(predict(lm5, newdata=datos_lm5_val_pred, type="response"))
+actual <- datos_lm5_val$NRO_ACCID
+lm5_val_mse <- MSE(predicted, actual) # MSE
+lm5_val_mae <- MAE(predicted, actual) # MAE
+lm5_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm5_val_mse, lm5_val_mae, lm5_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm5_val_mae`, y un R2 de `r lm5_val_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm5_tr_mae
+mae_vl = lm5_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación es de 53.48188 %.
+
+## Modelo 5: modelo lineal generalizado, usando las variables clase y comuna
+
+Finalmente, probaremos un último modelo, usando aquellas variables que tuvieron el mejor MAE en los modelos anteriores, es decir, CLASE y COMUNA. Se incluiran tambien las variables del modelo inicial.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6 <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred <- datos_lm6_tr[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_tr_pred, type="response"))
+actual <- datos_lm6_tr$NRO_ACCID
+lm6_tr_mse <- MSE(predicted, actual) # MSE
+lm6_tr_mae <- MAE(predicted, actual) # MAE
+lm6_tr_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_mse, lm6_tr_mae, lm6_tr_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_mae`, y un R2 de `r lm6_tr_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
+actual <- datos_lm6_val$NRO_ACCID
+lm6_val_mse <- MSE(predicted, actual) # MSE
+lm6_val_mae <- MAE(predicted, actual) # MAE
+lm6_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mse, lm6_val_mae, lm6_val_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_mae`, y un R2 de `r lm6_val_r2`. 
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mae
+mae_vl = lm6_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue mínima, de tan solo -0.75 %; este dato nos ayuda a estar muy seguros de que no hay sobreentrenamiento. Con este modelo tambien conseguimos el MAE más pequeño de todos, cercano a 1, y el R2 cuadrado sigue siendo bueno, superior al 70%. Por tanto, concluimos que este es el mejor modelo para predecir, según nuestro criterio de éxito.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred <- datos_lm6_val[,-c(6)]
+predicted <- round(predict(lm6, newdata=datos_lm6_val_pred, type="response"))
+actual <- datos_lm6_val$NRO_ACCID
+lm6_val_mse <- MSE(predicted, actual) # MSE
+lm6_val_mae <- MAE(predicted, actual) # MAE
+lm6_val_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mse, lm6_val_mae, lm6_val_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_mae`, y un R2 de `r lm6_val_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mae
+mae_vl = lm6_val_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue de 16.3796 %.
+
+# Semanal
+
+Una vez tenemos determinado el mejor modelo (5) para las predicciones diarias, podemos pasar a evaluarlo semanalmente para validar su eficiencia en plazos semanales.
+
+## Modelo seleccionado: modelo lineal generalizado, usando las variables clase y comuna
+
+Veamos como se comporta este modelo para predecir la accidentalidad semanalmente. En este caso, las variables a utilizar seran FESTIVIDAD, SEMANA, CLASE y COMUNA.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_semanal <- base_train %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6_semanal <- glm(NRO_ACCID ~ FESTIVIDAD+SEMANA+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr_semanal)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred_semanal <- datos_lm6_tr_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_tr_pred_semanal, type="response"))
+actual <- datos_lm6_tr_semanal$NRO_ACCID
+lm6_tr_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_tr_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_tr_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_semanal_mse, lm6_tr_semanal_mae, lm6_tr_semanal_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_semanal_mae`, y un R2 de `r lm6_tr_semanal_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_semanal <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_semanal <- datos_lm6_val_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_val_pred_semanal, type="response"))
+actual <- datos_lm6_val_semanal$NRO_ACCID
+lm6_val_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_val_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_val_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_semanal_mse, lm6_val_semanal_mae, lm6_val_semanal_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_semanal_mae`, y un R2 de `r lm6_val_semanal_r2`. 
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_semanal_mae
+mae_vl = lm6_val_semanal_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue muy pequeña, de tan solo -1.177976 %; este dato nos ayuda a estar muy seguros de que no hay sobreentrenamiento. Con este modelo tambien conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto, concluimos que este modelo sigue siendo adecuado para realizar predicciones a nivel semanal, según nuestro criterio de éxito.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_semanal <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_semanal <- datos_lm6_val_semanal[,-c(6)]
+predicted <- round(predict(lm6_semanal, newdata=datos_lm6_val_pred_semanal, type="response"))
+actual <- datos_lm6_val_semanal$NRO_ACCID
+lm6_val_semanal_mse <- MSE(predicted, actual) # MSE
+lm6_val_semanal_mae <- MAE(predicted, actual) # MAE
+lm6_val_semanal_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_semanal_mse, lm6_val_semanal_mae, lm6_val_semanal_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_semanal_mae`, y un R2 de `r lm6_val_semanal_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_semanal_mae
+mae_vl = lm6_val_semanal_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue de 12.58592 %.
+
+# Mensual
+
+Finalmente, evaluaremos el modelo 5 de manera mensual, para validar su eficacia en este caso.
+
+## Modelo seleccionado: modelo lineal generalizado, usando las variables clase y comuna
+
+Veamos como se comporta este modelo para predecir la accidentalidad mensualmente. Las variables a utilizar son FESTIVIDAD, MES, CLASE y COMUNA.
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_mensual <- base_train %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                   CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+# lm6 <- lm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE+COMUNA,
+#            data = datos_lm6_tr)
+lm6_mensual <- glm(NRO_ACCID ~ FESTIVIDAD+MES+CLASE+COMUNA, family = "poisson",
+           data = datos_lm6_tr_mensual)
+```
+
+### Predicción y Evaluación para los datos de Entrenamiento
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_tr_pred_mensual <- datos_lm6_tr_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_tr_pred_mensual, type="response"))
+actual <- datos_lm6_tr_mensual$NRO_ACCID
+lm6_tr_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_tr_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_tr_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_tr_mensual_mse, lm6_tr_mensual_mae, lm6_tr_mensual_r2)
+```
+
+Para los datos de entrenamiento, se obtiene un MAE de `r lm6_tr_mensual_mae`, y un R2 de `r lm6_tr_mensual_r2`.
+
+### Predicción y Evaluación para los datos de Validación en el año 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_mensual <- datos_val_2019 %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_mensual <- datos_lm6_val_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_val_pred_mensual, type="response"))
+actual <- datos_lm6_val_mensual$NRO_ACCID
+lm6_val_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_val_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_val_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mensual_mse, lm6_val_mensual_mae, lm6_val_mensual_r2)
+```
+
+Para los datos de validación del año 2019, se obtiene un MAE de `r lm6_val_mensual_mae`, y un R2 de `r lm6_val_mensual_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2019)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mensual_mae
+mae_vl = lm6_val_mensual_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue muy pequeña, de tan solo -1.258233 %; este dato nos ayuda a estar muy seguros de que no hay sobreentrenamiento. Con este modelo tambien conseguimos un MAE muy pequeño, cercano a 1.2, y el R2 cuadrado no disminuyó demasiado, pues sigue estando cerca del 70%. Por tanto, concluimos que este modelo sigue siendo adecuado para realizar predicciones a nivel semanal, según nuestro criterio de éxito.
+
+### Predicción y Evaluación para los datos de Validación en el año 2020
+
+```{r message=FALSE, warning=FALSE, echo=F}
+datos_lm6_val_mensual <- datos_val_2020 %>% group_by(FECHA, FESTIVIDAD, MES, 
+                                        CLASE, COMUNA) %>% count(name = "NRO_ACCID")
+
+datos_lm6_val_pred_mensual <- datos_lm6_val_mensual[,-c(6)]
+predicted <- round(predict(lm6_mensual, newdata=datos_lm6_val_pred_mensual, type="response"))
+actual <- datos_lm6_val_mensual$NRO_ACCID
+lm6_val_mensual_mse <- MSE(predicted, actual) # MSE
+lm6_val_mensual_mae <- MAE(predicted, actual) # MAE
+lm6_val_mensual_r2 <- R2_Score(predicted, actual) # R2
+sprintf("MSE: %f, MAE: %f, R2: %f", lm6_val_mensual_mse, lm6_val_mensual_mae, lm6_val_mensual_r2)
+```
+
+Para los datos de validación del año 2020, se obtiene un MAE de `r lm6_val_mensual_mae`, y un R2 de `r lm6_val_mensual_r2`.
+
+### Comparación entre las métricas de entrenamiento y validación (2020)
+
+```{r message=FALSE, warning=FALSE, echo=F}
+mae_tr = lm6_tr_mensual_mae
+mae_vl = lm6_val_mensual_mae
+print(mae_variation(mae_tr, mae_val))
+```
+
+La variación entre el MAE de entrenamiento y validación fue de 12.37932 %.
