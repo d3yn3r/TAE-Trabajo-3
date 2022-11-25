@@ -130,9 +130,9 @@ comunas<-inner_join(comunas_csv, Base_depurada, by = c("IDENTIFICA" = "NUMCOMUNA
 
 ```{r se toman el numero de accidentes desde los años 2014 a 2020}
 Base_definitiva_comunas <- comunas %>% #filter(ANO >= 2014 & ANO < 2019) %>% 
-  group_by(CODIGO) %>%
-  summarise(num_acc = n()) %>%
-  ungroup()
+  dplyr::group_by(CODIGO) %>%
+  dplyr::summarise(num_acc = n()) %>%
+  dplyr::ungroup()
 
 ```
 
@@ -188,9 +188,9 @@ Barrios_true <- inner_join(barrios_csv, Base_depurada, by = c("NOMBRE_BARRIO" = 
 
 ```{r}
 Base_definitiva_barrios <- Barrios_true %>% filter(ANO >= 2014 & ANO < 2019) %>% 
-  group_by(CODIGO) %>%
-  summarise(num_acc = n()) %>%
-  ungroup()
+  dplyr::group_by(CODIGO) %>%
+  dplyr::summarise(num_acc = n()) %>%
+  dplyr::ungroup()
 
 ```
 
@@ -233,8 +233,8 @@ leaflet() %>% addPolygons(data = Mapa_de_calor, color = "#0A0A0A", opacity = 0.6
 ```{r}
 accidentalidad_comuna<- Base_depurada%>%
   #filter(ANO>=2014 && ANO<2019)%>%
-  group_by(COMUNA)%>%
-  summarise(num_acc=n())
+  dplyr::group_by(COMUNA)%>%
+  dplyr::summarise(num_acc=n())
 ```
 
 ```{r histograma de accidentalidad}
@@ -250,8 +250,8 @@ ggplot(accidentalidad_comuna, aes(x=COMUNA,y=num_acc)) +
 Creamos una base de datos que nos diga el numero de accidentes por gravedad , asi mismo nos indica la logica en la cual R toma el orden de los accidentes , siendo Con heridos	,Con muertos	y Solo danos; esto sera util para la construccion correcta de la matriz para el agrupamiento.
 ```{r}
 dd<-Base_depurada%>%
-  group_by(GRAVEDAD)%>%
-  summarise(num_acc=n())
+  dplyr::group_by(GRAVEDAD)%>%
+  dplyr::summarise(num_acc=n())
 dd
 ```
 
@@ -430,8 +430,8 @@ Creamos una base de datos que nos diga el numero de accidentes por tipo , asi mi
 
 ```{r}
 ss<-Base_depurada%>%
-  group_by(CLASE)%>%
-  summarise(n=n())
+  dplyr::group_by(CLASE)%>%
+  dplyr::summarise(n=n())
 ss
 ```
 
