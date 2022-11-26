@@ -2419,13 +2419,13 @@ leaflet() %>% addPolygons(data = mapa_geo2, opacity = 0.4, color = "#545454",wei
 ## Aplicación
 
 <div style="text-align: justify">
-
+[Enlace aplicación](https://d3yn3r.shinyapps.io/Prediccion_Med_Acc-2/)
 </div>
 
 ## Video promocional 
 
 <div style="text-align: justify">
-
+[Enlace Video promocional](https://www.youtube.com/watch?v=-oJY35SYzXY)
 </div>
 
 ## Referencias
