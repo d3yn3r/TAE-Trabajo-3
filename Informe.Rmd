@@ -42,6 +42,9 @@ library(leaflet)
 library(stringi)
 library(ggplot2)
 library(cluster)
+library(caret)
+library(caTools)
+library(reshape2)
 ```
 
 **- Daniel torres aguirre**
@@ -58,7 +61,7 @@ library(cluster)
 
 ## Introducción
 <div style="text-align: justify">
-Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore itaque iure ipsum sunt omnis quis vel doloremque provident, nam perspiciatis id soluta quos iste. Ratione facere nesciunt unde. Repellat saepe quo veniam corporis reprehenderit dolores eveniet voluptate aperiam eaque officia? Sed aperiam et eius obcaecati. Similique ex quod quae rerum ad assumenda enim possimus id tempore, perferendis incidunt explicabo facilis laudantium nulla temporibus deserunt est ratione corporis sequi aliquam nostrum consequuntur! Culpa officia, autem veniam ratione ut consequuntur quas a, neque sint facere fugit fugiat exercitationem recusandae magni quam cumque repellendus illo facilis blanditiis eligendi consequatur ducimus id. Error, facilis?
+El siguiente informe, trata acerca del análisis de accidentalidad en Medellín durante los periodos 2014 a 2020, realizaremos una revisión de los datos con el fin de encontrar el comportamiento de estos, segmentando por diferentes tipos de variables, a su vez realizaremos el agrupamiento mediante técnicas de clustering y analizaremos el comportamiento según los diferentes grupos, también se realizara el entrenamiento de un modelo con el fin de realizar una predicción para los años 2021 y 2022, a su vez, crearemos una aplicación web en la que se podrán consultar  datos históricos, ver los agrupamientos y ver la predicción por diferentes tipos de segmentación para los años 2021 y 2022.
 </div>
 
 ```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
@@ -1326,9 +1329,430 @@ La variación entre el MAE de entrenamiento y validación fue de `r resultado`%.
 
 ## 4. Predicción
 
-<div style="text-align: justify">
+```{r message=FALSE, warning=FALSE, echo=F}
+load("./datos/lm6.RData")
+load("./datos/lm6_s.RData")
+load("./datos/lm6_m.RData")
+load("./datos/funcion_acentos.RDATA")
+```
 
+### 4.1 Comportamiento Accidentes reales vs Predichos 2019
+
+```{r message=FALSE, warning=FALSE, echo=F}
+#Lectura de la base de datos principal
+Base_depurada <- read.csv("./datos/base_depurada3.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+```
+
+```{r,results='hide', message=FALSE, warning=FALSE,echo=FALSE}
+prueba2019 <- Base_depurada %>% 
+  filter(ANO==2019)%>%
+  group_by(FECHA,ANO, CLASE,COMUNA, DIA_SEMANA, SEMANA, , MES, FESTIVIDAD) %>% 
+  summarise(num_acc =  n())%>%
+  arrange(FECHA)
+```
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+
+prueba20192<-prueba2019
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba20192$num_acc <- NULL
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba20192$FECHA <- as.Date(prueba20192$FECHA)
+prueba20192$CLASE <- as.factor(prueba20192$CLASE)
+prueba20192$DIA_SEMANA <- as.factor(prueba20192$DIA_SEMANA)
+prueba20192$ANO <- as.integer(prueba20192$ANO)
+prueba20192$FESTIVIDAD <- as.factor(prueba20192$FESTIVIDAD)
+prueba20192$COMUNA <- as.factor(prueba20192$COMUNA)
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prediccion_2019 <- predict(object = lm6, newdata = prueba20192,
+                          type = "response")
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rrr2019<-data.frame(round(prediccion_2019),0)
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rrr2019$X0<-NULL
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba20193<-prueba20192
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba20193$num_acc<-rrr2019$round.prediccion_2019.
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad33<-prueba2019%>%
+  group_by(MES)%>%
+  summarise(accidentes_reales=sum(num_acc))
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad55<-prueba20193%>%
+  group_by(MES)%>%
+  summarise(accidentes_predichos=sum(num_acc))
+ 
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final_2019<-rasad33
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final_2019$accidentes_predichos<-rasad55$accidentes_predichos
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final_20192 <- melt(prueba_final_2019 ,  id.vars = 'MES', variable.name = 'series')
+```
+
+<div style="text-align: justify">
+En la siguiente gráfica se muestra la cantidad de accidentes ocurridos a lo largo del año 2019.
 </div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+ggplot(prueba_final_20192, aes(MES, value)) +
+  geom_line(aes(colour = series))
+```
+
+<div style="text-align: justify">
+Para el año 2019 la cantidad de accidentes predichos por el modelo se asemeja a la cantidad de accidentes reales ocurridos en el mismo año. Se puede observar que los accidentes predichos por el modelo tienen un patrón de comportamiento similar a los datos reales pasado el mes 4. A pesar de que anterior al mes 4 existen diferencias considerables, la similitud general de ambos nos lleva a concluir que el modelo hace predicciones en un rango aceptable.
+</div>
+
+### 4.2 Comportamiento Accidentes reales vs Predichos 2020
+
+```{r,results='hide', message=FALSE, warning=FALSE, echo=F}
+prueba <- Base_depurada %>% 
+  filter(ANO==2020)%>%
+  group_by(FECHA,ANO, CLASE,COMUNA, DIA_SEMANA, SEMANA, , MES, FESTIVIDAD) %>% 
+  summarise(num_acc =  n())%>%
+  arrange(FECHA)
+```
+
+```{r message=FALSE, warning=FALSE, results = 'hide', echo=F}
+
+prueba2<-prueba
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba2$num_acc <- NULL
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba2$FECHA <- as.Date(prueba2$FECHA)
+prueba2$CLASE <- as.factor(prueba2$CLASE)
+prueba2$DIA_SEMANA <- as.factor(prueba2$DIA_SEMANA)
+prueba2$ANO <- as.integer(prueba2$ANO)
+prueba2$FESTIVIDAD <- as.factor(prueba2$FESTIVIDAD)
+prueba2$COMUNA <- as.factor(prueba2$COMUNA)
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prediccion_2020 <- predict(object = lm6, newdata = prueba2,
+                          type = "response")
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+
+rrr<-data.frame(round(prediccion_2020),0)
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rrr$X0<-NULL
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba3<-prueba2
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba3$num_acc<-rrr$round.prediccion_2020.
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad3<-prueba%>%
+  group_by(MES)%>%
+  summarise(accidentes_reales=sum(num_acc))
+
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad5<-prueba3%>%
+  group_by(MES)%>%
+  summarise(accidentes_predichos=sum(num_acc))
+ 
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final<-rasad3
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final$accidentes_predichos<-rasad5$accidentes_predichos
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prueba_final2 <- melt(prueba_final ,  id.vars = 'MES', variable.name = 'series')
+```
+
+<div style="text-align: justify">
+En la siguiente gráfica se muestra la cantidad de accidentes ocurridos a lo largo del año 2020.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+ggplot(prueba_final2, aes(MES, value)) +
+  geom_line(aes(colour = series))
+```
+
+<div style="text-align: justify">
+Se puede observar que el modelo de predicción logra replicar el comportamiento de accidentes para el año 2022 al menos en estructura (subidas, bajadas, picos y caídas). Aun así, existe una diferencia importante entre la cantidad de accidentes reales y predichos a partir del mes número 2 (febrero). La principal razón a la que se le podría atribuir esta diferencia es la pandemia del COVID-19, que inició a finales del año 2019 y tuvo apogeo en 2020, ocasionando confinamientos y limitando gravemente la movilidad y transporte. Se cree que por esta razón hay una gran diferencia en la cantidad de accidentes, pero no en el comportamiento a lo largo del año.
+</div>
+
+### 4.3 Prediccion en los Años 2021 y 2022
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prediccion2 <- read.csv("./datos/prediccion_corregida.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+prediccion2$DIA_SEMANA=remove.accents(prediccion2$DIA_SEMANA)
+```
+
+### 4.3.1 Predicion diaria 2021
+
+<div style="text-align: justify">
+A continuación, se muestra una tabla con las primeras 10 observaciones de las predicciones diarias obtenidas para el año 2021.
+</div>
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+Base_prediccion_2021 <- subset(prediccion2, (ANO != '2022'))
+
+Base_prediccion_2021$FECHA <- as.Date(Base_prediccion_2021$FECHA)
+Base_prediccion_2021$CLASE <- as.factor(Base_prediccion_2021$CLASE)
+Base_prediccion_2021$DIA_SEMANA <- as.factor(Base_prediccion_2021$DIA_SEMANA)
+Base_prediccion_2021$ANO <- as.integer(Base_prediccion_2021$ANO)
+Base_prediccion_2021$FESTIVIDAD <- as.factor(Base_prediccion_2021$FESTIVIDAD)
+Base_prediccion_2021$COMUNA <- as.factor(Base_prediccion_2021$COMUNA)
+
+
+prediccion_2021 <- predict(object = lm6, newdata = Base_prediccion_2021,
+                          type = "response")
+
+prediccion_diaria2021 <- Base_prediccion_2021 %>% 
+  mutate(NRO_ACCID = round(prediccion_2021,0))
+
+diario_20_02 <- prediccion_diaria2021 %>%
+  group_by(FECHA, DIA_SEMANA, CLASE, FESTIVIDAD,COMUNA) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=NRO_ACCID)
+
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad<-diario_20_02%>%
+  group_by(FECHA, DIA_SEMANA, CLASE, FESTIVIDAD)%>%
+  summarise(NUM_ACC=sum(NRO_TOTAL_ACCID))
+
+DT::datatable(head(rasad,n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
+
+### 4.3.2 Prediccion diaria 2022
+
+<div style="text-align: justify">
+Se presenta también la tabla referente a las primeras 10 observaciones de las predicciones diarias obtenidas para el año 2022.
+</div>
+
+
+```{r message=FALSE, warning=FALSE, echo=F}
+Base_prediccion_2022 <- subset(prediccion2, (ANO != '2021'))
+
+Base_prediccion_2022$FECHA <- as.Date(Base_prediccion_2022$FECHA)
+Base_prediccion_2022$CLASE <- as.factor(Base_prediccion_2022$CLASE)
+Base_prediccion_2022$DIA_SEMANA <- as.factor(Base_prediccion_2022$DIA_SEMANA)
+Base_prediccion_2022$ANO <- as.integer(Base_prediccion_2022$ANO)
+Base_prediccion_2022$FESTIVIDAD <- as.factor(Base_prediccion_2022$FESTIVIDAD)
+Base_prediccion_2022$COMUNA <- as.factor(Base_prediccion_2022$COMUNA)
+
+
+prediccion_2022 <- predict(object = lm6, newdata = Base_prediccion_2022,
+                          type = "response")
+prediccion_diaria2022 <- Base_prediccion_2022 %>% 
+  mutate(NRO_ACCID = round(prediccion_2022,0))
+
+diario_22_02 <- prediccion_diaria2022 %>%
+  group_by(FECHA, DIA_SEMANA, CLASE, FESTIVIDAD,COMUNA) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=NRO_ACCID)
+
+```
+
+```{r message=FALSE, warning=FALSE, echo=F}
+rasad2<-diario_22_02%>%
+  group_by(FECHA, DIA_SEMANA, CLASE, FESTIVIDAD)%>%
+  summarise(NUM_ACC=sum(NRO_TOTAL_ACCID))
+
+DT::datatable(head(rasad2,n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
+
+### 4.3.3 Prediccion semanal 2021
+
+<div style="text-align: justify">
+A continuación, se muestra una tabla con las primeras 10 observaciones de las predicciones semanales obtenidas para el año 2021.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+
+Base_prediccion_2021_Semana <- subset(prediccion2, (ANO != '2022'))
+
+Base_prediccion_2021_Semana$FECHA <- as.Date(Base_prediccion_2021_Semana$FECHA)
+Base_prediccion_2021_Semana$CLASE <- as.factor(Base_prediccion_2021_Semana$CLASE)
+Base_prediccion_2021_Semana$DIA_SEMANA <- as.factor(Base_prediccion_2021_Semana$DIA_SEMANA)
+Base_prediccion_2021_Semana$ANO <- as.integer(Base_prediccion_2021_Semana$ANO)
+Base_prediccion_2021_Semana$FESTIVIDAD <- as.factor(Base_prediccion_2021_Semana$FESTIVIDAD)
+Base_prediccion_2021_Semana$COMUNA <- as.factor(Base_prediccion_2021_Semana$COMUNA)
+Base_prediccion_2021_Semana$SEMANA <- as.integer(Base_prediccion_2021_Semana$SEMANA)
+
+
+prediccion_2021s <- predict(object = lm6_semanal, newdata = Base_prediccion_2021_Semana,
+                          type = "response")
+prediccion_semanal2021 <- Base_prediccion_2021_Semana %>% 
+  mutate(NRO_ACCID = round(prediccion_2021s,0))
+
+semanal_1 <- prediccion_semanal2021 %>% group_by(CLASE, SEMANA, NRO_ACCID, FESTIVIDAD) %>% dplyr::summarize(total = n())
+semanal_1 <- mutate(semanal_1, NRO_ACCID_TOTAL=NRO_ACCID*total)
+
+semanal_21 <- semanal_1 %>%
+  group_by(SEMANA, CLASE,FESTIVIDAD) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=sum(NRO_ACCID_TOTAL))
+
+DT::datatable(head(semanal_21, n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
+
+### 4.3.4 Prediccion semanal 2022
+
+<div style="text-align: justify">
+Se presenta también la tabla referente a las primeras 10 observaciones de las predicciones semanales obtenidas para el año 2022.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+
+Base_prediccion_2022_Semana <- subset(prediccion2, (ANO != '2021'))
+
+Base_prediccion_2022_Semana$FECHA <- as.Date(Base_prediccion_2022_Semana$FECHA)
+Base_prediccion_2022_Semana$CLASE <- as.factor(Base_prediccion_2022_Semana$CLASE)
+Base_prediccion_2022_Semana$DIA_SEMANA <- as.factor(Base_prediccion_2022_Semana$DIA_SEMANA)
+Base_prediccion_2022_Semana$ANO <- as.integer(Base_prediccion_2022_Semana$ANO)
+Base_prediccion_2022_Semana$FESTIVIDAD <- as.factor(Base_prediccion_2022_Semana$FESTIVIDAD)
+Base_prediccion_2022_Semana$COMUNA <- as.factor(Base_prediccion_2022_Semana$COMUNA)
+Base_prediccion_2022_Semana$SEMANA <- as.integer(Base_prediccion_2022_Semana$SEMANA)
+
+
+prediccion_2022s <- predict(object = lm6_semanal, newdata = Base_prediccion_2021_Semana,
+                          type = "response")
+prediccion_semanal2022 <- Base_prediccion_2022_Semana %>% 
+  mutate(NRO_ACCID = round(prediccion_2022s,0))
+
+semanal_2 <- prediccion_semanal2022 %>% group_by(CLASE, SEMANA, NRO_ACCID, FESTIVIDAD) %>% dplyr::summarize(total = n())
+semanal_2 <- mutate(semanal_2, NRO_ACCID_TOTAL=NRO_ACCID*total)
+
+semanal_22 <- semanal_2 %>%
+  group_by(SEMANA, CLASE,FESTIVIDAD) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=sum(NRO_ACCID_TOTAL))
+
+DT::datatable(head(semanal_22,n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
+
+### 4.3.5 Prediccion mensual 2021
+
+<div style="text-align: justify">
+A continuación, se muestra una tabla con las primeras 10 observaciones de las predicciones mensuales obtenidas para el año 2021.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+Base_prediccion_2021_Mes <- subset(prediccion2, (ANO != '2022'))
+
+Base_prediccion_2021_Mes$FECHA <- as.Date(Base_prediccion_2021_Mes$FECHA)
+Base_prediccion_2021_Mes$CLASE <- as.factor(Base_prediccion_2021_Mes$CLASE)
+Base_prediccion_2021_Mes$DIA_SEMANA <- as.factor(Base_prediccion_2021_Mes$DIA_SEMANA)
+Base_prediccion_2021_Mes$AÑO <- as.integer(Base_prediccion_2021_Mes$ANO)
+Base_prediccion_2021_Mes$FESTIVIDAD <- as.factor(Base_prediccion_2021_Mes$FESTIVIDAD)
+
+prediccion_2021m <- predict(object = lm6_mensual, newdata = Base_prediccion_2021_Mes,
+                          type = "response")
+prediccion_mensual2021 <- Base_prediccion_2021_Mes %>% 
+  mutate(NRO_ACCID = round(prediccion_2021m,0))
+
+
+
+
+mensual_21 <- prediccion_mensual2021 %>% group_by(CLASE, MES, NRO_ACCID, FESTIVIDAD) %>% dplyr::summarize(total = n())
+mensual_21 <- mutate(mensual_21, NRO_ACCID_TOTAL=NRO_ACCID*total)
+
+mensual_1 <- mensual_21 %>%
+  group_by(MES, CLASE, FESTIVIDAD) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=sum(NRO_ACCID_TOTAL))
+
+DT::datatable(head(mensual_1,n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
+
+### 4.3.6 prediccion mensual 2022
+
+<div style="text-align: justify">
+Se presenta también la tabla referente a las primeras 10 observaciones de las predicciones mensuales obtenidas para el año 2022.
+</div>
+
+```{r message=FALSE, warning=FALSE, echo=F}
+Base_prediccion_2022_Mes <- subset(prediccion2, (ANO != '2021'))
+
+Base_prediccion_2022_Mes$FECHA <- as.Date(Base_prediccion_2022_Mes$FECHA)
+Base_prediccion_2022_Mes$CLASE <- as.factor(Base_prediccion_2022_Mes$CLASE)
+Base_prediccion_2022_Mes$DIA_SEMANA <- as.factor(Base_prediccion_2022_Mes$DIA_SEMANA)
+Base_prediccion_2022_Mes$AÑO <- as.integer(Base_prediccion_2022_Mes$ANO)
+Base_prediccion_2022_Mes$FESTIVIDAD <- as.factor(Base_prediccion_2022_Mes$FESTIVIDAD)
+Base_prediccion_2022_Mes$COMUNA <- as.factor(Base_prediccion_2022_Mes$COMUNA)
+
+prediccion_2022m <- predict(object = lm6_mensual, newdata = Base_prediccion_2022_Mes,
+                          type = "response")
+prediccion_mensual2022 <- Base_prediccion_2022_Mes %>% 
+  mutate(NRO_ACCID = round(prediccion_2022m,0))
+
+
+
+
+mensual_22 <- prediccion_mensual2022 %>% group_by(CLASE, MES, NRO_ACCID, FESTIVIDAD) %>% dplyr::summarize(total = n())
+mensual_22 <- mutate(mensual_22, NRO_ACCID_TOTAL=NRO_ACCID*total)
+
+mensual_2 <- mensual_22 %>%
+  group_by(MES, CLASE, FESTIVIDAD) %>%
+  dplyr::summarise(NRO_TOTAL_ACCID=sum(NRO_ACCID_TOTAL))
+
+DT::datatable(head(mensual_2,n=10), editable = list(
+  target = 'row', disable = list(columns = c(1, 3, 4))
+))
+
+```
 
 ## 5. Agrupamiento
 
@@ -1337,7 +1761,7 @@ La variación entre el MAE de entrenamiento y validación fue de `r resultado`%.
 Primero antes de comenzar con el clustering, propiamente primero se creará un mapa de calor de la accidentalidad dentro tanto de las comunas como en los barrios para representar de manera cruda, como se distribuye la accidentalidad de manera general.
 </div>
 
-```{r message=FALSE, warning=FALSE , echo=FALSE}
+```{r message=FALSE, warning=FALSE, echo=F}
 # Funcion para eliminar acentos
 # define the function
 remove.accents <- function(s) {
@@ -1592,10 +2016,13 @@ matriz_definitiva = as.matrix(scale(accidentes_barrio_gravedad))
 
 <div style="text-align: justify">
 Para encontrar un k optimo se usarán la curva del codo, estadístico de Gap y el coeficiente de la silueta.
-Como podemos ver en la curva del codo nos indica un k ideal con valor de 3 o 4
 </div>
 
 ### Método de la curva del codo
+
+<div style="text-align: justify">
+Como podemos ver en la curva del codo nos indica un k ideal con valor de 3 o 4
+</div>
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Metodo de la curva del codo 
@@ -1611,11 +2038,11 @@ plot(1:k.max, wss,
      main = "Curva del codo", col="green")
 ```
 
+### Método de la silueta
+
 <div style="text-align: justify">
 Con el método del coeficiente de la silueta nos muestra que un k ideal tiende a ser 2 ya que es el valor k con el puntaje del coeficiente de silueta más alto.
 </div>
-
-### Método de la silueta
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 # Metodo de la silueta 
@@ -1638,11 +2065,13 @@ plot(k.values, avg_sil_values,
        ylab = "Puntaje promedio de silueta")
 ```
 
+
+### Estadístico de GAP
+
 <div style="text-align: justify">
 El estadístico de gap nos muestra que el primer cambio de signo ocurre en k=1.
 </div>
 
-### Estadístico de GAP
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Estadistico de gap 
 set.seed(20221119)
@@ -1761,6 +2190,9 @@ mapa_geo$colores <- ifelse(mapa_geo$kmm.cluster == "1", "#f3d10f",
 
 ```
 
+
+
+
 <div style="text-align: justify">
 Al igual que con el mapa de calor los grupos que sean más rojos es donde tiende el grupo de mayor accidentalidad
 </div>
@@ -1808,10 +2240,13 @@ matriz_definitiva2 = as.matrix(scale(accidentes_barrio_clase))
 
 <div style="text-align: justify">
 Para encontrar un k optimo se usarán los métodos de la curva del codo, Estadístico de Gap y el coeficiente de la silueta.
-Como podemos ver en la curva del codo un k ideal puede ser un valor de 3 o 4.
 </div>
 
 ### Método de la curva del codo
+
+<div style="text-align: justify">
+Como podemos ver en la curva del codo un k ideal puede ser un valor de 3 o 4.
+</div>
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Metodo de la curva del codo 2 
@@ -1827,11 +2262,12 @@ plot(1:k.max, wss2,
      main = "Curva del codo", col="green")
 ```
 
+
+### Método de la silueta
+
 <div style="text-align: justify">
 Con el método del coeficiente de la silueta vimos que un k ideal tiende a ser 2 ya que es el valor de k donde el puntaje del coeficiente de la silueta es más alto.
 </div>
-
-### Método de la silueta
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Metodo de la silueta 2 
@@ -1854,11 +2290,12 @@ plot(k.values, avg_sil_values2,
        ylab = "Puntaje promedio de silueta")
 ```
 
+
+### Estadístico de GAP
+
 <div style="text-align: justify">
 El estadístico de gap nos muestra que el primer cambio de signo ocurre en k=5.
 </div>
-
-### Estadístico de GAP
 
 ```{r message=FALSE, warning=FALSE , echo=FALSE}
 #Estadistico de gap 2 
@@ -2001,6 +2438,17 @@ leaflet() %>% addPolygons(data = mapa_geo2, opacity = 0.4, color = "#545454",wei
 </br>
 [ggplot2-book.org](https://ggplot2-book.org/scale-colour.html)
 </br>
+[Accidentalidad medellín - MeData](http://medata.gov.co/dataset/incidentes-viales)
+</br>
+[Rpubs](https://rpubs.com/)
+</br>
+[Shinyapps](https://www.shinyapps.io/)
+</br>
+[Removing accents in R](https://mikedenly.com/posts/2021/05/removing-accents-in-R/)
+</br>
+[Optimal Clusters](https://www.r-bloggers.com/2017/02/finding-optimal-number-of-clusters/)
+</br>
+[HTML color codes](https://htmlcolorcodes.com/es/)
 </div>
 
 
