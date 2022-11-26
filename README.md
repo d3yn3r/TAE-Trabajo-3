@@ -5,3 +5,6 @@
 
 ## Aplicación web 
 [shiny App](https://d3yn3r.shinyapps.io/Prediccion_Med_Acc-2/)
+
+## Video
+[Video promocional](https://youtu.be/-oJY35SYzXY)
