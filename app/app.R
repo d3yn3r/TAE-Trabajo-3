@@ -11,6 +11,10 @@ library(cluster)
 library(factoextra)
 
 load("geo_data.RData")
+load("lm6.RData")
+load("lm6_s.RData")
+load("lm6_m.RData")
+load("funcion_acentos.RDATA")
 
 tipo_de_accidente <- c("Todos", "Atropello", "Caida de Ocupante", "Choque", "Incendio", 
                        "Volcamiento", "Otro")
@@ -123,6 +127,7 @@ ui <- fluidPage(theme = shinythemes::shinytheme("cerulean"),
                                       
                                       column(8,
                                              leaflet::leafletOutput("agrupamiento")
+                                             
                                       )
                                     ))
                 )
@@ -131,8 +136,8 @@ ui <- fluidPage(theme = shinythemes::shinytheme("cerulean"),
 
 
 server <- (function(input, output) {
-  #Actualizar
-  bd_depurada <- read.csv("base_depurada.csv", encoding="UTF-8")
+  
+  bd_depurada <- read.csv("base_depurada3.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
   
   #catastral <- read.csv("Limite_Barrio_Vereda_Catastral.csv", encoding="UTF-8")
   
@@ -147,11 +152,6 @@ server <- (function(input, output) {
     datos_val_2020 <- subset(bd_depurada, (ANO == '2020'))
     base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
     
-    datos_lmdiario <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
-                                              CLASE) %>% count(name = "NRO_ACCID")
-    
-    lmDiario <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson", 
-                    data = datos_lmdiario)
     
     datos_lmsemana <- base_train %>% group_by(FECHA, FESTIVIDAD, SEMANA, 
                                               CLASE) %>% count(name = "NRO_ACCID")
@@ -165,11 +165,10 @@ server <- (function(input, output) {
     lmMensual <- glm(NRO_ACCID ~ FESTIVIDAD+MES+CLASE, family = "poisson", 
                      data = datos_lmmes)
     
-    #Actualizar
-    bd_prediccion <- read.csv("prediccion_sin_comuna.csv", sep = ",", encoding = "UTF-8")
     
-    #Base_prediccion03 <- Base_prediccion[,-4]
-    #Base_prediccion04 <- Base_prediccion03[,-4]
+    bd_prediccion <- read.csv("prediccion_corregida.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+    
+    bd_prediccion$DIA_SEMANA=remove.accents(bd_prediccion$DIA_SEMANA)
     
     
     if(input$year=="2021"){
@@ -181,11 +180,14 @@ server <- (function(input, output) {
       bd_prediccion_2021$DIA_SEMANA <- as.factor(bd_prediccion_2021$DIA_SEMANA)
       bd_prediccion_2021$ANO <- as.integer(bd_prediccion_2021$ANO)
       bd_prediccion_2021$FESTIVIDAD <- as.factor(bd_prediccion_2021$FESTIVIDAD)
+      bd_prediccion_2021$COMUNA <- as.factor(bd_prediccion_2021$COMUNA)
+      bd_prediccion_2021$SEMANA <- as.integer(bd_prediccion_2021$SEMANA)
       
       if(input$tiempo=="Diario"){
         
-        prediccion_2021 <- predict(object = lmDiario, newdata = bd_prediccion_2021,
+        prediccion_2021 <- predict(object = lm6, newdata = bd_prediccion_2021,
                                    type = "response")
+        
         prediccion_diaria2021 <- bd_prediccion_2021 %>% 
           mutate(NRO_ACCID = round(prediccion_2021,0))
         
@@ -207,8 +209,9 @@ server <- (function(input, output) {
         
       }else if(input$tiempo=="Semanal"){
         
-        prediccion_2021 <- predict(object = lmSemanal, newdata = bd_prediccion_2021,
+        prediccion_2021 <- predict(object = lm6_semanal, newdata = bd_prediccion_2021,
                                    type = "response")
+        
         prediccion_semana2021 <- bd_prediccion_2021 %>% 
           mutate(NRO_ACCID = round(prediccion_2021,0))
         
@@ -232,8 +235,8 @@ server <- (function(input, output) {
       }
       else{
         
-        prediccion_2021 <- predict(object = lmMensual, newdata = bd_prediccion_2021,
-                                   type = "response")
+        prediccion_2021 <-  predict(object = lm6_mensual, newdata = bd_prediccion_2021,
+                                    type = "response")
         
         prediccion_mensual2021 <- bd_prediccion_2021 %>% 
           mutate(NRO_ACCID = round(prediccion_2021,0))
@@ -267,11 +270,14 @@ server <- (function(input, output) {
       bd_prediccion_2022$DIA_SEMANA <- as.factor(bd_prediccion_2022$DIA_SEMANA)
       bd_prediccion_2022$ANO <- as.integer(bd_prediccion_2022$ANO)
       bd_prediccion_2022$FESTIVIDAD <- as.factor(bd_prediccion_2022$FESTIVIDAD)
+      bd_prediccion_2022$COMUNA <- as.factor(bd_prediccion_2022$COMUNA)
+      bd_prediccion_2022$SEMANA <- as.integer(bd_prediccion_2022$SEMANA)
       
       if(input$tiempo=="Diario"){
         
-        prediccion_2022 <- predict(object = lmDiario, newdata = bd_prediccion_2022,
+        prediccion_2022 <- predict(object = lm6, newdata = bd_prediccion_2022,
                                    type = "response")
+        
         prediccion_diaria2022 <- bd_prediccion_2022 %>% 
           mutate(NRO_ACCID = round(prediccion_2022,0))
         
@@ -293,8 +299,9 @@ server <- (function(input, output) {
         
       }else if(input$tiempo=="Semanal"){
         
-        prediccion_2022 <- predict(object = lmSemanal, newdata = bd_prediccion_2022,
+        prediccion_2021 <- predict(object = lm6_semanal, newdata = bd_prediccion_2022,
                                    type = "response")
+        
         prediccion_semana2022 <- bd_prediccion_2022 %>% 
           mutate(NRO_ACCID = round(prediccion_2022,0))
         
@@ -318,7 +325,7 @@ server <- (function(input, output) {
       }
       else{
         
-        prediccion_2022 <- predict(object = lmMensual, newdata = bd_prediccion_2022,
+        prediccion_2022 <- predict(object = lm6_mensual, newdata = bd_prediccion_2022,
                                    type = "response")
         
         prediccion_mensual2022 <- bd_prediccion_2022 %>% 
@@ -348,7 +355,7 @@ server <- (function(input, output) {
   })
   
   output$datoshist <- renderPlot({
-    base_depurada <- read.csv("base_depurada.csv", encoding="UTF-8")
+    base_depurada <- read.csv("base_depurada3.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
     
     ano <- input$years
     base_depurada$CLASE <- as.factor(as.character(base_depurada$CLASE))
@@ -429,7 +436,7 @@ server <- (function(input, output) {
   
   output$datoshistFecha <- renderPlot({
     
-    base_depurada <- read.csv("base_depurada.csv", encoding="UTF-8")
+    base_depurada <- read.csv("base_depurada3.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
     base_depurada$CLASE <- as.factor(as.character(base_depurada$CLASE))
     date <- input$Fecha
     
@@ -444,18 +451,14 @@ server <- (function(input, output) {
   
   output$prediccionFecha <- renderPlot({
     #Actualizar
-    bd_prediccion <- read.csv("prediccion_sin_comuna.csv", sep = ",", encoding = "UTF-8")
+    bd_prediccion <- read.csv("prediccion_corregida.csv", dec=",", header=T,sep=",", encoding = "UTF-8")
+    bd_prediccion$DIA_SEMANA=remove.accents(bd_prediccion$DIA_SEMANA)
     
     bd_depurada$CLASE <- as.factor(as.character(bd_depurada$CLASE))
     datos_val_2019 <- subset(bd_depurada, (ANO == '2019'))
     datos_val_2020 <- subset(bd_depurada, (ANO == '2020'))
     base_train <- subset(bd_depurada, (ANO != '2019' & ANO != '2020'))
     
-    datos_lmdiario <- base_train %>% group_by(FECHA, FESTIVIDAD, DIA_SEMANA, 
-                                              CLASE) %>% count(name = "NRO_ACCID")
-    
-    lmDiario <- glm(NRO_ACCID ~ FESTIVIDAD+DIA_SEMANA+CLASE, family = "poisson", 
-                    data = datos_lmdiario)
     
     bd_prediccionF <- bd_prediccion
     
@@ -465,7 +468,7 @@ server <- (function(input, output) {
     bd_prediccionF$ANO <- as.integer(bd_prediccionF$ANO)
     bd_prediccionF$FESTIVIDAD <- as.factor(bd_prediccionF$FESTIVIDAD)
     
-    prediccionF <- predict(object = lmDiario, newdata = bd_prediccionF,
+    prediccionF <- predict(object = lm6, newdata = bd_prediccionF,
                            type = "response")
     prediccion_diariaF <- bd_prediccionF %>% 
       mutate(NRO_ACCID = round(prediccionF,0))
@@ -495,7 +498,7 @@ server <- (function(input, output) {
       leaflet() %>% addPolygons(data = mapa_geo, opacity = 0.4, color = "#545454",weight = 1, fillColor = mapa_geo$colores,
                                 fillOpacity = 0.4, label = ~NOMBRE_BAR,
                                 highlightOptions = highlightOptions(color = "#blue", weight = 3, bringToFront = T, opacity = 1),
-                                popup = paste("Barrio: ", mapa_geo$NOMBRE_BAR, "<br>", "Grupo: ", mapa_geo$kmm.cluster, "<br>", "Número de Accidentes con heridos: ", mapa_geo$Con_heridos, "<br>", "Número de Accidentes con muertos: ", mapa_geo$Con_muertos, "<br>", "Número de Accidentes con solo daños: ", mapa_geo$Solo_danos)) %>%
+                                popup = paste("Barrio: ", mapa_geo$NOMBRE_BAR, "<br>", "Grupo: ", mapa_geo$kmm.cluster, "<br>", "NÃºmero de Accidentes con heridos: ", mapa_geo$Con_heridos, "<br>", "NÃºmero de Accidentes con muertos: ", mapa_geo$Con_muertos, "<br>", "NÃºmero de Accidentes con solo daÃ±os: ", mapa_geo$Solo_danos)) %>%
           addProviderTiles(providers$OpenStreetMap) %>%
           addLegend(position = "bottomright", colors = colorgrupos, labels = c("Grupo 1: Accidentalidad Media Baja", "Grupo 2: Accidentalidad Baja", "Grupo 3: Accidentalidad Media Alta", "Grupo 4: Accidentalidad Alta"))
     
